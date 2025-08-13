@@ -1,1 +1,257 @@
+<!--
+  Project: SPS_Ch 1.1
+  Files in this single document (copy each block to its file):
+  1) index.html
+  2) style.css
+  3) app.js
+--><!-- ======================== index.html ======================== --><!DOCTYPE html><html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Encaminhamento de Pendências – SPS_Ch 1.1</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Firebase (Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="title">Encaminhamento de Pendências</div>
+      <div class="session">
+        <span id="userBadge" class="badge">Não logado</span>
+        <button id="btnLogout" class="btn ghost" hidden>Sair</button>
+      </div>
+    </header><nav class="sidebar">
+  <button class="nav-btn" data-view="loginView" id="navLogin">Login</button>
+  <button class="nav-btn" data-view="userView" id="navUser" hidden>Minha Tela</button>
+  <button class="nav-btn" data-view="adminView" id="navAdmin" hidden>Admin</button>
+</nav>
 
+<main class="content">
+  <!-- Login View -->
+  <section id="loginView" class="view">
+    <div class="card w-420">
+      <h2>Entrar</h2>
+      <label class="field">
+        <span>Nome</span>
+        <input id="loginNome" class="input" type="text" autocomplete="username" />
+      </label>
+      <label class="field">
+        <span>Senha</span>
+        <input id="loginSenha" class="input" type="password" autocomplete="current-password" />
+      </label>
+      <button id="btnLogin" class="btn primary w-full">Entrar</button>
+      <div class="muted mt-8">Ex.: Helio / 12345678</div>
+    </div>
+  </section>
+
+  <!-- User View -->
+  <section id="userView" class="view" hidden>
+    <div class="grid-2 gap-16">
+      <div class="card">
+        <h2>Novo Chamado</h2>
+        <div class="grid-2 compact-form">
+          <label class="field">
+            <span>Analista</span>
+            <input id="uAnalista" class="input" type="text" readonly />
+          </label>
+          <label class="field">
+            <span>Chamado</span>
+            <input id="uChamado" class="input" type="text" />
+          </label>
+          <label class="field">
+            <span>Linha</span>
+            <input id="uLinha" class="input" type="text" />
+          </label>
+          <label class="field">
+            <span>Equipamento</span>
+            <select id="uEquipamento" class="select"></select>
+          </label>
+          <label class="field">
+            <span>Cenário</span>
+            <select id="uCenario" class="select"></select>
+          </label>
+          <label class="field">
+            <span>Data do encaminhamento</span>
+            <input id="uData" class="input" type="date" />
+          </label>
+        </div>
+        <div class="actions">
+          <button id="btnUserSalvar" class="btn primary">Salvar</button>
+          <button id="btnUserNovo" class="btn">Novo</button>
+          <button id="btnUserLimpar" class="btn ghost">Limpar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Meus Chamados</h2>
+        <div class="toolbar">
+          <input id="userSearch" class="input" placeholder="Buscar..." />
+          <select id="userPageSize" class="select w-120">
+            <option>10</option>
+            <option>25</option>
+            <option>50</option>
+          </select>
+          <button id="btnUserCSV" class="btn">Exportar CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="userTable">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Chamado</th>
+                <th>Linha</th>
+                <th>Equipamento</th>
+                <th>Cenário</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div class="pager">
+            <button id="userPrev" class="btn">◀</button>
+            <span id="userPageInfo" class="muted"></span>
+            <button id="userNext" class="btn">▶</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Admin View -->
+  <section id="adminView" class="view" hidden>
+    <div class="tabs">
+      <button class="tab active" data-tab="tabUsers">Usuários</button>
+      <button class="tab" data-tab="tabChamados">Chamados</button>
+      <button class="tab" data-tab="tabDash">Dashboard</button>
+    </div>
+
+    <div id="tabUsers" class="tab-panel">
+      <div class="grid-2 gap-16">
+        <div class="card">
+          <h2>Novo Usuário</h2>
+          <label class="field">
+            <span>Nome</span>
+            <input id="aUNome" class="input" type="text" />
+          </label>
+          <label class="field">
+            <span>Senha</span>
+            <input id="aUSenha" class="input" type="password" />
+          </label>
+          <label class="check">
+            <input id="aUAdmin" type="checkbox" /> Admin
+          </label>
+          <label class="check">
+            <input id="aUAtivo" type="checkbox" checked /> Ativo
+          </label>
+          <div class="actions">
+            <button id="btnUserCreate" class="btn primary">Criar</button>
+            <button id="btnUserUpdate" class="btn" disabled>Atualizar</button>
+            <button id="btnUserClear" class="btn ghost">Limpar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Usuários</h2>
+          <div class="toolbar">
+            <input id="admUserSearch" class="input" placeholder="Buscar..." />
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="admUsersTable">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Admin</th>
+                  <th>Ativo</th>
+                  <th>ID</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tabChamados" class="tab-panel" hidden>
+      <div class="card">
+        <h2>Chamados (Geral)</h2>
+        <div class="filters grid-4 gap-12">
+          <label class="field">
+            <span>Período (início)</span>
+            <input id="fInicio" class="input" type="date" />
+          </label>
+          <label class="field">
+            <span>Período (fim)</span>
+            <input id="fFim" class="input" type="date" />
+          </label>
+          <label class="field">
+            <span>Equipamento</span>
+            <select id="fEquip" class="select"></select>
+          </label>
+          <label class="field">
+            <span>Cenário</span>
+            <select id="fCenario" class="select"></select>
+          </label>
+          <label class="field">
+            <span>Analista</span>
+            <input id="fAnalista" class="input" type="text" />
+          </label>
+          <label class="check mt-22">
+            <input id="fIncluirExcluidos" type="checkbox" /> Incluir excluídos
+          </label>
+          <div class="actions end">
+            <button id="btnAplicarFiltros" class="btn">Aplicar</button>
+            <button id="btnCSV" class="btn">Exportar CSV</button>
+          </div>
+        </div>
+
+        <div class="table-wrap mt-12">
+          <table class="table" id="admCallsTable">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Analista</th>
+                <th>Chamado</th>
+                <th>Linha</th>
+                <th>Equipamento</th>
+                <th>Cenário</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="tabDash" class="tab-panel" hidden>
+      <div class="grid-3 gap-16">
+        <div class="card">
+          <h3>Por Equipamento</h3>
+          <canvas id="chartEquip"></canvas>
+        </div>
+        <div class="card">
+          <h3>Por Cenário</h3>
+          <canvas id="chartCenario"></canvas>
+        </div>
+        <div class="card">
+          <h3>Por Analista</h3>
+          <canvas id="chartAnalista"></canvas>
+        </div>
+      </div>
+      <div class="grid-4 gap-16 mt-16">
+        <div class="kpi card" id="kpiTotal">Total: 0</div>
+        <div class="kpi card" id="kpiTopEquip">Top Equipamentos: -</div>
+        <div class="kpi card" id="kpiTopCenario">Top Cenários: -</div>
+        <div class="kpi card" id="kpiTopAnalista">Top Analista: -</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+  </div>  <div id="toast" class="toast" aria-live="polite"></div>  <script src="app.js"></script></body>
+</html>/
