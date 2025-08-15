@@ -1,0 +1,77 @@
+/* style.css — SPS_Ch 1.1 (substitua seu arquivo por este) */
+:root{
+  --bg:#0f1115;
+  --panel:#171a21cc;
+  --border:#2a2f3b;
+  --text:#e6e6e6;
+  --muted:#9aa3b2;
+  --primary:#3b82f6;
+  --primary-ghost:#3b82f622;
+  --accent:#22c55e;
+  --danger:#ef4444;
+  --space-1:8px; --space-2:12px; --space-3:16px; --space-4:24px; --space-5:32px;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:linear-gradient(120deg,#0b0d12,#12141a);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+
+/* Layout */
+.app{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;grid-template-areas:"topbar topbar" "sidebar content";height:100vh}
+.topbar{grid-area:topbar;display:flex;align-items:center;justify-content:space-between;padding:0 var(--space-4);backdrop-filter:saturate(1.2) blur(8px);background:#0c0f14aa;border-bottom:1px solid var(--border)}
+.title{font-weight:700;letter-spacing:.3px}
+.session{display:flex;align-items:center;gap:12px}
+.badge{background:var(--primary-ghost);color:#cfe1ff;padding:6px 10px;border-radius:999px;font-size:.85rem}
+.btn{background:#1c2230;border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer;transition:.2s}
+.btn:hover{border-color:#3a4252}
+.btn.primary{background:var(--primary);border-color:#2563eb}
+.btn.ghost{background:transparent}
+
+.sidebar{grid-area:sidebar;border-right:1px solid var(--border);padding:var(--space-3);display:flex;flex-direction:column;gap:8px;background:#0e1117cc;backdrop-filter:blur(8px)}
+.nav-btn{all:unset;cursor:pointer;padding:10px 12px;border:1px solid var(--border);border-radius:10px;display:block}
+.nav-btn:hover{background:#161a22}
+.nav-btn.active{background:var(--primary-ghost);border-color:#2b3a55}
+
+.content{grid-area:content;padding:var(--space-4);overflow:auto}
+.view{animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4);box-shadow:0 10px 30px #00000033}
+.w-420{max-width:420px;margin-inline:auto}
+.w-120{width:120px}
+.w-full{width:100%}
+.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-22{margin-top:22px}
+.muted{color:var(--muted)}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr)}
+.gap-12{gap:12px}.gap-16{gap:16px}
+
+@media (max-width:1000px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.compact-form{gap:12px}
+
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.input,.select{background:#0f1420;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;outline:none}
+.input:focus,.select:focus{border-color:#334155;box-shadow:0 0 0 3px #60a5fa33}
+
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px}
+.table{width:100%;border-collapse:collapse;font-size:.95rem}
+.table th,.table td{border-bottom:1px solid var(--border);padding:10px 12px;text-align:left;white-space:nowrap}
+.table th{position:sticky;top:0;background:#151925;z-index:1}
+.pager{display:flex;align-items:center;gap:8px;justify-content:flex-end;padding:8px}
+
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{background:#111624;border:1px solid var(--border);padding:8px 12px;border-radius:10px;cursor:pointer}
+.tab.active{background:var(--primary-ghost);border-color:#2b3a55}
+.tab-panel{animation:fade .2s ease}
+
+.kpi{display:flex;align-items:center;justify-content:center;font-weight:700}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0b1220;border:1px solid var(--border);padding:10px 14px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s}
+.toast.show{opacity:1;pointer-events:auto}
+
+.actions{display:flex;gap:8px;margin-top:8px}
+.actions.end{justify-content:flex-end}
+.check{display:flex;align-items:center;gap:8px;margin:6px 0}
