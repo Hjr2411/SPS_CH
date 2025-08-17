@@ -1,0 +1,361 @@
+/* style.css — SPS_Ch 1.1 (versão melhorada) */
+:root{
+  --bg:#0f1115;
+  --panel:#171a21cc;
+  --border:#2a2f3b;
+  --text:#e6e6e6;
+  --muted:#9aa3b2;
+  --primary:#3b82f6;
+  --primary-hover:#2563eb;
+  --primary-ghost:#3b82f622;
+  --accent:#22c55e;
+  --danger:#ef4444;
+  --danger-hover:#dc2626;
+  --warning:#f59e0b;
+  --success:#10b981;
+  --space-1:8px; --space-2:12px; --space-3:16px; --space-4:24px; --space-5:32px;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:linear-gradient(120deg,#0b0d12,#12141a);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+
+/* Layout */
+.app{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;grid-template-areas:"topbar topbar" "sidebar content";height:100vh}
+.topbar{grid-area:topbar;display:flex;align-items:center;justify-content:space-between;padding:0 var(--space-4);backdrop-filter:saturate(1.2) blur(8px);background:#0c0f14aa;border-bottom:1px solid var(--border)}
+.title{font-weight:700;letter-spacing:.3px;color:var(--text)}
+.session{display:flex;align-items:center;gap:12px}
+.badge{background:var(--primary-ghost);color:#cfe1ff;padding:6px 10px;border-radius:999px;font-size:.85rem}
+
+/* Botões melhorados */
+.btn{
+  background:#1c2230;
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:all .2s ease;
+  font-weight:500;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+}
+.btn:hover{
+  border-color:#3a4252;
+  background:#242938;
+  transform:translateY(-1px);
+}
+.btn:active{
+  transform:translateY(0);
+}
+.btn.primary{
+  background:var(--primary);
+  border-color:var(--primary);
+  color:#ffffff;
+}
+.btn.primary:hover{
+  background:var(--primary-hover);
+  border-color:var(--primary-hover);
+}
+.btn.ghost{
+  background:transparent;
+  color:var(--muted);
+}
+.btn.ghost:hover{
+  background:#1c223022;
+  color:var(--text);
+}
+.btn:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+  transform:none;
+}
+.btn:disabled:hover{
+  transform:none;
+  background:#1c2230;
+  border-color:var(--border);
+}
+
+/* Botões de ação específicos */
+.btn.danger{
+  background:var(--danger);
+  border-color:var(--danger);
+  color:#ffffff;
+}
+.btn.danger:hover{
+  background:var(--danger-hover);
+  border-color:var(--danger-hover);
+}
+
+.btn.success{
+  background:var(--success);
+  border-color:var(--success);
+  color:#ffffff;
+}
+.btn.success:hover{
+  background:#059669;
+  border-color:#059669;
+}
+
+.sidebar{grid-area:sidebar;border-right:1px solid var(--border);padding:var(--space-3);display:flex;flex-direction:column;gap:8px;background:#0e1117cc;backdrop-filter:blur(8px)}
+.nav-btn{
+  all:unset;
+  cursor:pointer;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  display:block;
+  color:var(--text);
+  transition:all .2s ease;
+  font-weight:500;
+}
+.nav-btn:hover{
+  background:#161a22;
+  border-color:#3a4252;
+}
+.nav-btn.active{
+  background:var(--primary-ghost);
+  border-color:#2b3a55;
+  color:#cfe1ff;
+}
+
+.content{grid-area:content;padding:var(--space-4);overflow:auto}
+.view{animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4);box-shadow:0 10px 30px #00000033}
+.w-420{max-width:420px;margin-inline:auto}
+.w-120{width:120px}
+.w-full{width:100%}
+.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-22{margin-top:22px}
+.muted{color:var(--muted)}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr)}
+.gap-12{gap:12px}.gap-16{gap:16px}
+
+@media (max-width:1000px){
+  .app{grid-template-columns:1fr;grid-template-areas:"topbar" "content"}
+  .sidebar{display:none}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+}
+.compact-form{gap:12px}
+
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.field span{color:var(--text);font-weight:500}
+.input,.select{
+  background:#0f1420;
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:10px;
+  outline:none;
+  transition:all .2s ease;
+}
+.input:focus,.select:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px var(--primary-ghost);
+}
+.input::placeholder{
+  color:var(--muted);
+}
+
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;max-height:500px}
+.table{width:100%;border-collapse:collapse;font-size:.95rem}
+.table th,.table td{border-bottom:1px solid var(--border);padding:10px 12px;text-align:left;white-space:nowrap}
+.table th{
+  position:sticky;
+  top:0;
+  background:#151925;
+  z-index:1;
+  color:var(--text);
+  font-weight:600;
+}
+.table tr:hover{
+  background:#1a1f2a22;
+}
+.pager{display:flex;align-items:center;gap:8px;justify-content:flex-end;padding:8px}
+
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tab{
+  background:#111624;
+  border:1px solid var(--border);
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  color:var(--text);
+  transition:all .2s ease;
+  font-weight:500;
+}
+.tab:hover{
+  background:#1a1f2a;
+  border-color:#3a4252;
+}
+.tab.active{
+  background:var(--primary-ghost);
+  border-color:#2b3a55;
+  color:#cfe1ff;
+}
+.tab-panel{animation:fade .2s ease}
+
+.kpi{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  color:var(--text);
+  text-align:center;
+  min-height:60px;
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:24px;
+  transform:translateX(-50%);
+  background:#0b1220;
+  border:1px solid var(--border);
+  padding:10px 14px;
+  border-radius:12px;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+  color:var(--text);
+  box-shadow:0 10px 30px #00000066;
+}
+.toast.show{opacity:1;pointer-events:auto}
+
+.actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.actions.end{justify-content:flex-end}
+
+.check{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:6px 0;
+  color:var(--text);
+}
+.check input[type="checkbox"]{
+  width:16px;
+  height:16px;
+  accent-color:var(--primary);
+}
+
+/* Melhorias para duplicatas */
+.duplicate-row{
+  background-color:#ef444422 !important;
+  border-left:3px solid var(--danger) !important;
+}
+
+/* Melhorias responsivas */
+@media (max-width:768px){
+  .topbar{padding:0 var(--space-2)}
+  .content{padding:var(--space-2)}
+  .card{padding:var(--space-2)}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .actions{flex-direction:column}
+  .btn{width:100%}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;gap:8px}
+}
+
+/* Estados de loading */
+.loading{
+  opacity:0.6;
+  pointer-events:none;
+}
+
+/* Melhorias de acessibilidade */
+.btn:focus-visible{
+  outline:2px solid var(--primary);
+  outline-offset:2px;
+}
+.input:focus-visible,.select:focus-visible{
+  outline:2px solid var(--primary);
+  outline-offset:2px;
+}
+
+/* Animações suaves */
+* {
+  transition:color .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+/* Melhorias para formulários */
+.form-group{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin-bottom:12px;
+}
+
+.form-row{
+  display:flex;
+  gap:12px;
+  align-items:end;
+}
+
+@media (max-width:600px){
+  .form-row{
+    flex-direction:column;
+    align-items:stretch;
+  }
+}
+
+/* Indicadores visuais */
+.required::after{
+  content:" *";
+  color:var(--danger);
+}
+
+.success-text{
+  color:var(--success);
+}
+
+.error-text{
+  color:var(--danger);
+}
+
+.warning-text{
+  color:var(--warning);
+}
+
+/* Melhorias para tabelas */
+.table-container{
+  position:relative;
+}
+
+.table-empty{
+  text-align:center;
+  padding:40px 20px;
+  color:var(--muted);
+  font-style:italic;
+}
+
+/* Melhorias para charts */
+canvas{
+  max-height:300px;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar{
+  width:8px;
+  height:8px;
+}
+
+::-webkit-scrollbar-track{
+  background:var(--bg);
+}
+
+::-webkit-scrollbar-thumb{
+  background:var(--border);
+  border-radius:4px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+  background:var(--muted);
+}
+
