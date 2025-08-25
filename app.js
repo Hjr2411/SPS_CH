@@ -203,8 +203,8 @@ async function seedIfEmpty(){
   const listasSnap = await db.ref('app/listas').once('value');
   if(!listasSnap.exists()){
     await db.ref('app/listas').set({
-      equipamentos:["HLR","HHUA","HLREDA","HSS","RTC","VPNSIX","SGV","Claro flex"],
-      cenarios:["Voz","Dados","Voz e dados","Não localizado no SPSWeb","Falha no equipamento","Franquia de dados","Assinante não possui HSS","4G/5G inativo","RESTRICTED","IMEI", "SEM VOLTE"               
+      equipamentos:["HLR","HHUA","HLREDA","HSS","RTC","VPNSIX","SGV","outro"],
+ //     cenarios:["Voz","Dados","Voz e dados","Não localizado no SPSWeb","Falha no equipamento","Franquia de dados","Assinante não possui HSS","4G/5G inativo","RESTRICTED","IMEI", "SEM VOLTE"               
                ]
     });
   }
