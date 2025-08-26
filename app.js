@@ -204,7 +204,10 @@ async function seedIfEmpty(){
   if(!listasSnap.exists()){
     await db.ref('app/listas').set({
       equipamentos:["HLR","HHUA","HLREDA","HSS","RTC","VPNSIX","SGV","outro"],
- //     cenarios:["Voz","Dados","Voz e dados","Não localizado no SPSWeb","Falha no equipamento","Franquia de dados","Assinante não possui HSS","4G/5G inativo","RESTRICTED","IMEI", "SEM VOLTE"               
+    cenarios:["Voz","Dados","Voz e dados","Não localizado no SPSWeb",
+              "Falha no equipamento","Franquia de dados",
+              "Assinante não possui HSS","4G/5G inativo","RESTRICTED",
+              "IMEI", "SEM VOLTE"               
                ]
     });
   }
@@ -213,7 +216,7 @@ async function seedIfEmpty(){
   if(!callsSnap.exists()){
     const now = Date.now();
     const base = [ 
-      /*
+     
       {analista:'Lucas', chamado:'C-1001', linha:'551199999001', equipamento:'HLR', cenario:'Voz', dataEncaminhamento:'2025-08-01'},
       {analista:'Rodrigo', chamado:'C-1002', linha:'551199999002', equipamento:'HSS', cenario:'Dados', dataEncaminhamento:'2025-08-03'},
       {analista:'Fernando', chamado:'C-1003', linha:'551199999003', equipamento:'RTC', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-05'},
@@ -223,7 +226,7 @@ async function seedIfEmpty(){
       // Adicionando algumas duplicatas para teste
       {analista:'Lucas', chamado:'C-1007', linha:'551199999001', equipamento:'HSS', cenario:'Dados', dataEncaminhamento:'2025-08-15'},
       {analista:'Fernando', chamado:'C-1008', linha:'551199999003', equipamento:'HLR', cenario:'Voz', dataEncaminhamento:'2025-08-18'}
-      */
+    
     ];
     const ref = db.ref('app/chamados');
     for(const r of base){
