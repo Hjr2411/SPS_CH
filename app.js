@@ -1,3 +1,4 @@
+
 // app.js — SPS_Ch 1.1 (versão melhorada)
 /* global firebase, Chart */
 
@@ -213,231 +214,19 @@ async function seedIfEmpty(){
   }
   // Chamados demo (se quiser gráficos na 1ª execução)
   const callsSnap = await db.ref('app/chamados').once('value');
- // if(!callsSnap.exists()){
-     if(1 == 1){
+  if(!callsSnap.exists()){
     const now = Date.now();
     const base = [ 
      
-    {analista:'Lucas', chamado:'PDST-1910514', linha:'123456788923.0', equipamento:'HLR', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-01', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1907414', linha:'123456788924.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-01', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1909188', linha:'123456788925.0', equipamento:'nd', cenario:'DAdos e VOZ', dataEncaminhamento:'2025-07-01', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1909976', linha:'123456788926.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-07-01', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1911318', linha:'123456788927.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-01', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1910735', linha:'123456788928.0', equipamento:'nd', cenario:'Dados', dataEncaminhamento:'2025-07-01', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1911178', linha:'123456788929.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-01', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1910185', linha:'123456788930.0', equipamento:'VPNSIX', cenario:'Delete de IMSI', dataEncaminhamento:'2025-07-01', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1911888', linha:'123456788931.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-07-01', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1912159', linha:'123456788932.0', equipamento:'HSS', cenario:'Assinante não possui HSS', dataEncaminhamento:'2025-08-01', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1911887', linha:'123456788933.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-07-01', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1912172', linha:'123456788934.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-07-01', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1912475', linha:'123456788935.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-01', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1911540', linha:'123456788936.0', equipamento:'RTC', cenario:'Sem dados de consumo', dataEncaminhamento:'2025-07-01', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1908397', linha:'123456788937.0', equipamento:'nd', cenario:'Consumo da oferta errada', dataEncaminhamento:'2025-07-01', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1912940', linha:'123456788938.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-02', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1913422', linha:'123456788939.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-02', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1913718', linha:'123456788940.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-02', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1911856', linha:'123456788941.0', equipamento:'HLREDA', cenario:'Ofertas não espelhada no spsweb', dataEncaminhamento:'2025-08-02', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1913721', linha:'123456788942.0', equipamento:'HLREDA', cenario:'Não recebe ligações', dataEncaminhamento:'2025-08-02', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1914038', linha:'123456788943.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-02', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1912159', linha:'123456788944.0', equipamento:'HHUA', cenario:'não possui provisionamento no HSS', dataEncaminhamento:'2025-08-02', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1908481', linha:'123456788945.0', equipamento:'nd', cenario:'DAdos e VOZ', dataEncaminhamento:'2025-08-04', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1915241', linha:'123456788946.0', equipamento:'nd', cenario:'não possui provisionamento no HSS', dataEncaminhamento:'2025-08-04', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1915575', linha:'123456788947.0', equipamento:'HHUA', cenario:'não possui provisionamento no HSS', dataEncaminhamento:'2025-08-04', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1905331', linha:'123456788948.0', equipamento:'HSS', cenario:'falha de dados', dataEncaminhamento:'2025-08-04', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1916019', linha:'123456788949.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-04', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1915553', linha:'123456788950.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-04', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1916307', linha:'123456788951.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-04', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1915963', linha:'123456788952.0', equipamento:'HLR', cenario:'Não originar chamadas', dataEncaminhamento:'2025-08-04', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1915839', linha:'123456788953.0', equipamento:'nd', cenario:'franquia não espelhada no sistemas', dataEncaminhamento:'2025-08-04', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1915927', linha:'123456788954.0', equipamento:'HSS', cenario:'Franquia de dados', dataEncaminhamento:'2025-08-04', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1916219', linha:'123456788955.0', equipamento:'HLR', cenario:'Voz', dataEncaminhamento:'2025-07-04', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1916775', linha:'123456788956.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-07-04', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1917486', linha:'123456788957.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-05', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1917724', linha:'123456788958.0', equipamento:'HLR', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-05', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1918489', linha:'123456788959.0', equipamento:'SGV', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-05', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1918436', linha:'123456788960.0', equipamento:'nd', cenario:'Voz e dados', dataEncaminhamento:'2025-08-05', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1917074', linha:'123456788961.0', equipamento:'nd', cenario:'Voz e dados', dataEncaminhamento:'2025-08-05', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1917973', linha:'123456788962.0', equipamento:'HHUA', cenario:'Voz e dados', dataEncaminhamento:'2025-08-05', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1916019', linha:'123456788963.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-06', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1919535', linha:'123456788964.0', equipamento:'IMSI incorreto', cenario:'Voz e dados', dataEncaminhamento:'2025-08-06', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1921429', linha:'123456788965.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-05-06', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1920707', linha:'123456788966.0', equipamento:'HLR', cenario:'Voz e dados', dataEncaminhamento:'2025-05-06', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1916128', linha:'123456788967.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-06', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1922199', linha:'123456788968.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-06', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1922224', linha:'123456788969.0', equipamento:'RTC', cenario:'DAdos e VOZ', dataEncaminhamento:'2025-08-06', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1922781', linha:'123456788970.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-06', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1919522', linha:'123456788971.0', equipamento:'RTC', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1922933', linha:'123456788972.0', equipamento:'HLREDA', cenario:'DAdos e VOZ', dataEncaminhamento:'nd', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1923650', linha:'123456788973.0', equipamento:'HSS', cenario:'4G inativo', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1922880', linha:'123456788974.0', equipamento:'nd', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1920952', linha:'123456788975.0', equipamento:'HSS', cenario:'DAdos e VOZ', dataEncaminhamento:'nd', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1923976', linha:'123456788976.0', equipamento:'nd', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1924182', linha:'123456788977.0', equipamento:'HLREDA', cenario:'Ofertas não espelhada no spsweb', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1924137', linha:'123456788978.0', equipamento:'RTC', cenario:'franquia não espelhada no sistemas', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1924094', linha:'123456788979.0', equipamento:'HLR', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1924657', linha:'123456788980.0', equipamento:'Claro flex', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1924071', linha:'123456788981.0', equipamento:'HHUA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1924890', linha:'123456788982.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1909874', linha:'123456788983.0', equipamento:'nd', cenario:'nd', dataEncaminhamento:'nd', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1925368', linha:'123456788984.0', equipamento:'HLREDA', cenario:'Linha sem sinal', dataEncaminhamento:'2025-08-07', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1926306', linha:'123456788985.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1926802', linha:'123456788986.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1926889', linha:'123456788987.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1926871', linha:'123456788988.0', equipamento:'nd', cenario:'IMEI não informado pelo HLR', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1926761', linha:'123456788989.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Rodrigo', chamado:'PDST-1926224', linha:'123456788990.0', equipamento:'HHUA', cenario:'Linha sem sinal', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1927398', linha:'123456788991.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1927267', linha:'123456788992.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1924928', linha:'123456788993.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1927091', linha:'123456788994.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1925877', linha:'123456788995.0', equipamento:'RTC', cenario:'não aparece pacote controle', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1926529', linha:'123456788996.0', equipamento:'RTC', cenario:'Não aprovisiona pacote de dados', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1926753', linha:'123456788997.0', equipamento:'HLR', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1920952', linha:'123456788998.0', equipamento:'HHUA', cenario:'Franquia de dados', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1928048', linha:'123456788999.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-08', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1927456', linha:'123456789000.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-09', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1927626', linha:'123456789001.0', equipamento:'0', cenario:'Não apresenta pacote de dados', dataEncaminhamento:'2025-08-09', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1928545', linha:'123456789002.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-09', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1927398', linha:'123456789003.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-09', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1928878', linha:'123456789004.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-09', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1929087', linha:'123456789005.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-09', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1928335', linha:'123456789006.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-09', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1929152', linha:'123456789007.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-09', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1929096', linha:'123456789008.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-09', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1931537', linha:'123456789009.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-11', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1931592', linha:'123456789010.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-11', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1931491', linha:'123456789011.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-11', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1932566', linha:'123456789012.0', equipamento:'HLREDA', cenario:'Não localizado no SPSWeb', dataEncaminhamento:'2025-08-11', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1932504', linha:'123456789013.0', equipamento:'HHUA', cenario:'4G/5G inativo', dataEncaminhamento:'2025-08-11', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1933045', linha:'123456789014.0', equipamento:'HLREDA', cenario:'Não localizado no SPSWeb', dataEncaminhamento:'2025-08-11', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1930844', linha:'123456789015.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1933095', linha:'123456789016.0', equipamento:'nd', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1933117', linha:'123456789017.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1930713', linha:'123456789018.0', equipamento:'RTC', cenario:'franquia não espelhada no sistemas', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1934437', linha:'123456789019.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1934248', linha:'123456789020.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1933642', linha:'123456789021.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1934894', linha:'123456789022.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1934986', linha:'123456789023.0', equipamento:'nd', cenario:'Pacotes não aparecem', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Lucas', chamado:'nd', linha:'123456789024.0', equipamento:'nd', cenario:'nd', dataEncaminhamento:'nd', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1935627', linha:'123456789025.0', equipamento:'RTC', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1935433', linha:'123456789026.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1934104', linha:'123456789027.0', equipamento:'HLR', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-12', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1935403', linha:'123456789028.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-13', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1933045', linha:'123456789029.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-13', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1937005', linha:'123456789030.0', equipamento:'Claro flex/enviado para flex', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-13', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1937301', linha:'123456789031.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-13', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1937851', linha:'123456789032.0', equipamento:'RTC', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-13', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1937795', linha:'123456789033.0', equipamento:'Claro flex/enviado para flex', cenario:'RESTRICTED', dataEncaminhamento:'2025-08-13', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1938479', linha:'123456789034.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-13', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1933278', linha:'123456789035.0', equipamento:'APN duplicada', cenario:'APN duplicada ', dataEncaminhamento:'2025-08-14', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1931384', linha:'123456789036.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-14', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1939293', linha:'123456789037.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-14', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1940092', linha:'123456789038.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-14', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1939629', linha:'123456789039.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-14', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1934612', linha:'123456789040.0', equipamento:'Claro flex/enviado para flex', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-14', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1940824', linha:'123456789041.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-14', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1935627', linha:'123456789042.0', equipamento:'RTC', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-14', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1940900', linha:'123456789043.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-14', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1940702', linha:'123456789044.0', equipamento:'HHUA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-14', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1938811', linha:'123456789045.0', equipamento:'RTC', cenario:'Ofertas não espelhada no spsweb', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1941628', linha:'123456789046.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1938315', linha:'123456789047.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1942132', linha:'123456789048.0', equipamento:'RTC', cenario:'IMEI não informado pelo HLR', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1939900', linha:'123456789049.0', equipamento:'HHUA', cenario:'não recebe ligações', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1942115', linha:'123456789050.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1941462', linha:'123456789051.0', equipamento:'HLR', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1942688', linha:'123456789052.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1942915', linha:'123456789053.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1942984', linha:'123456789054.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1939531', linha:'123456789055.0', equipamento:'HLREDA', cenario:'Não realiza chamadas', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1943532', linha:'123456789056.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1938126', linha:'123456789057.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1942339', linha:'123456789058.0', equipamento:'RTC', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1941516', linha:'123456789059.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1920874', linha:'123456789060.0', equipamento:'HLR', cenario:'Não apresenta o imei', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1943950', linha:'123456789061.0', equipamento:'RTC', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1943923', linha:'123456789062.0', equipamento:'RTC', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-15', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1944200', linha:'123456789063.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1942915', linha:'123456789064.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1946865', linha:'123456789065.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1945105', linha:'123456789066.0', equipamento:'HHUA', cenario:'Ofertas não espelhada no spsweb', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1947573', linha:'123456789067.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1947579', linha:'123456789068.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1942132', linha:'123456789069.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1945825', linha:'123456789070.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1945792', linha:'123456789071.0', equipamento:'HLREDA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1948184', linha:'123456789072.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1943950', linha:'123456789073.0', equipamento:'RTC', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1942782', linha:'123456789074.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1945629', linha:'123456789075.0', equipamento:'HLREDA', cenario:'dados', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1948571', linha:'123456789076.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1948547', linha:'81997315479.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1944221', linha:'61985073796.0', equipamento:'HSS', cenario:'4G inativo', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1948224', linha:'123456789076.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1947187', linha:'123456789077.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1940543', linha:'123456789078.0', equipamento:'HLREDA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-18', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1950212', linha:'123456789079.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1949687', linha:'123456789080.0', equipamento:'Claro flex/enviado para flex', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1950274', linha:'123456789081.0', equipamento:'HLR', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1944770', linha:'123456789082.0', equipamento:'HLREDA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1950235', linha:'123456789083.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1949566', linha:'123456789084.0', equipamento:'HLREDA', cenario:'franquia não espelhada no sistemas', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1949567', linha:'123456789085.0', equipamento:'pré-pago/encaminhado', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1940702', linha:'123456789086.0', equipamento:'HLREDA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1947838', linha:'21975766811.0', equipamento:'RTC', cenario:'dados', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1941516', linha:'123456789086.0', equipamento:'HHUA', cenario:'franquia não espelhada no sistemas', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1934612', linha:'123456789087.0', equipamento:'hhua', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Lucas', chamado:'PDST-1951167', linha:'123456789088.0', equipamento:'RTC', cenario:'franquia não espelhada no sistemas', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1951846', linha:'123456789089.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1952514', linha:'123456789090.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1952558', linha:'123456789091.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1952506', linha:'123456789092.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-19', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1953333', linha:'123456789093.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1953435', linha:'123456789094.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1953712', linha:'123456789095.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1953682', linha:'123456789096.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1953466', linha:'123456789097.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1954233', linha:'123456789098.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1952973', linha:'11966130498.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1952572', linha:'41987171001.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1951876', linha:'71997150080.0', equipamento:'HHUA', cenario:'falha em ligações', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1951709', linha:'79981351236.0', equipamento:'HHUA', cenario:'falha em ligações', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1954672', linha:'123456789098.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1954470', linha:'123456789099.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1954103', linha:'123456789100.0', equipamento:'HHUA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1940543', linha:'123456789101.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-20', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1951754', linha:'123456789102.0', equipamento:'RTC', cenario:'cliente afirma nao consegue fazer ligações', dataEncaminhamento:'2025-08-21', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1950782', linha:'123456789103.0', equipamento:'HHUA', cenario:'Linha sem apns ', dataEncaminhamento:'2025-08-21', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1955360', linha:'123456789104.0', equipamento:'HLREDA', cenario:'linha sem serviço', dataEncaminhamento:'2025-08-21', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1955591', linha:'123456789105.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-21', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1956084', linha:'123456789106.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-21', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1956718', linha:'123456789107.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-21', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1954337', linha:'123456789108.0', equipamento:'HHUA', cenario:'4G inativo', dataEncaminhamento:'2025-08-21', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1957288', linha:'123456789109.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-21', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1957844', linha:'123456789110.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-21', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1957122', linha:'123456789111.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-21', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1954253', linha:'6423781582.0', equipamento:'HLR', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-22', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1954270', linha:'44984035638.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-22', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1952973', linha:'11966130498.0', equipamento:'hlreda', cenario:'x'', dataEncaminhamento:'2025-08-22', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1957207', linha:'45974002554.0', equipamento:'HLREDA', cenario:'Localização BARRED', dataEncaminhamento:'2025-08-22', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1956915', linha:'31995716303.0', equipamento:'HHUA', cenario:'Não informado pelo HLR', dataEncaminhamento:'2025-08-22', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1959846', linha:'nd', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-22', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1936902', linha:'55999182833.0', equipamento:'HLREDA', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-22', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1957202', linha:'19986034409.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'nd', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1960333', linha:'11978339929.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-25', obs:'nd'}
-,{analista:'Isabelle', chamado:'PDST-1961624', linha:'11945467328.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-25', obs:'nd'}
-,{analista:'Fernando', chamado:'PDST-1966572', linha:'nd', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-25', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1955236', linha:'47989050043.0', equipamento:'RTC', cenario:'falha nos dados', dataEncaminhamento:'2025-08-26', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1957082', linha:'51996191071.0', equipamento:'HLREDA', cenario:'falha na localização', dataEncaminhamento:'2025-08-26', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1957202', linha:'19986034409.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-26', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1950179', linha:'11991870256.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-26', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1965679', linha:'11947212668.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-26', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1965242', linha:'11976740912.0', equipamento:'HSS', cenario:'4G Inativo', dataEncaminhamento:'2025-08-26', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1961213', linha:'11976786540.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-26', obs:'nd'}
-,{analista:'Fabricio', chamado:'PDST-1961914', linha:'11995778459.0', equipamento:'HLREDA', cenario:'Assinante não localizado SPSWeb', dataEncaminhamento:'2025-08-26', obs:'nd'}
-
-    
+      {analista:'Lucas', chamado:'C-1001', linha:'551199999001', equipamento:'HLR', cenario:'Voz', dataEncaminhamento:'2025-08-01'},
+      {analista:'Rodrigo', chamado:'C-1002', linha:'551199999002', equipamento:'HSS', cenario:'Dados', dataEncaminhamento:'2025-08-03'},
+      {analista:'Fernando', chamado:'C-1003', linha:'551199999003', equipamento:'RTC', cenario:'Falha no equipamento', dataEncaminhamento:'2025-08-05'},
+      {analista:'Isabelle', chamado:'C-1004', linha:'551199999004', equipamento:'VPNSIX', cenario:'Voz e dados', dataEncaminhamento:'2025-08-08'},
+      {analista:'Helio', chamado:'C-1005', linha:'551199999005', equipamento:'HLREDA', cenario:'RESTRICTED', dataEncaminhamento:'2025-08-10'},
+      {analista:'Helio', chamado:'C-1006', linha:'551199999006', equipamento:'SGV', cenario:'Dados', dataEncaminhamento:'2025-08-12'},
+      // Adicionando algumas duplicatas para teste
+      {analista:'Lucas', chamado:'C-1007', linha:'551199999001', equipamento:'HSS', cenario:'Dados', dataEncaminhamento:'2025-08-15'},
+      {analista:'Fernando', chamado:'C-1008', linha:'551199999003', equipamento:'HLR', cenario:'Voz', dataEncaminhamento:'2025-08-18'}
     
     ];
     const ref = db.ref('app/chamados');
@@ -932,4 +721,4 @@ function esc(s){ return (s??'').toString().replace(/[&<>\"]/g, m=>({"&":"&amp;",
   await loadCenarios();
   await buildPublicCharts();
 })();
-
+	
