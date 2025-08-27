@@ -218,7 +218,7 @@ async function seedIfEmpty(){
     const now = Date.now();
     const base = [ 
      
-      {{analista:'Lucas', chamado:'PDST-1910514', linha:'123456788923.0', equipamento:'HLR', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-01', obs:'nd'}
+      {analista:'Lucas', chamado:'PDST-1910514', linha:'123456788923.0', equipamento:'HLR', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-01', obs:'nd'}
 {analista:'Lucas', chamado:'PDST-1907414', linha:'123456788924.0', equipamento:'HHUA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-08-01', obs:'nd'}
 {analista:'Rodrigo', chamado:'PDST-1909188', linha:'123456788925.0', equipamento:'nd', cenario:'DAdos e VOZ', dataEncaminhamento:'2025-07-01', obs:'nd'}
 {analista:'Rodrigo', chamado:'PDST-1909976', linha:'123456788926.0', equipamento:'HLREDA', cenario:'Não localizado no spsweb', dataEncaminhamento:'2025-07-01', obs:'nd'}
