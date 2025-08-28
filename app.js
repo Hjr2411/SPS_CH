@@ -422,7 +422,7 @@ function renderUserTable(){
     // Destacar duplicatas em vermelho
     if(r.isDuplicate || checkDuplicates(r.linha).length > 1) {
       tr.style.backgroundColor = '#ef444422';
-      tr.style.borderLeft = '3px solid #ef4444';
+      tr.style.borderLeft = '3px solid #97fa5a';
     }
     tr.innerHTML = `<td>${r.dataEncaminhamento||''}</td><td>${esc(r.chamado)}</td><td>${esc(r.linha)}</td><td>${esc(r.equipamento)}</td><td>${esc(r.cenario)}</td>`;
     frag.appendChild(tr);
