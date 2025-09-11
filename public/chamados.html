@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chamados • SPS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="../assets/style.css" rel="stylesheet" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">SPS • Chamados</div>
+  <nav class="nav">
+    <a href="./dashboard.html">Dashboard</a>
+    <a href="./chamados.html" class="active">Chamados</a>
+    <a href="./usuarios.html">Usuários</a>
+    <button id="logoutBtn" class="btn danger outline">Sair</button>
+  </nav>
+</header>
+
+<main class="container">
+  <section class="panel">
+    <h2>Novo Chamado</h2>
+    <form id="formChamado" class="grid form">
+      <input type="hidden" id="chamadoId" />
+      <label>Título
+        <input id="titulo" required />
+      </label>
+      <label>Prioridade
+        <select id="prioridade" required>
+          <option value="Alta">Alta</option>
+          <option value="Média">Média</option>
+          <option value="Baixa">Baixa</option>
+        </select>
+      </label>
+      <label>Status
+        <select id="status" required>
+          <option value="Aberto">Aberto</option>
+          <option value="Em andamento">Em andamento</option>
+          <option value="Fechado">Fechado</option>
+          <option value="Pendente">Pendente</option>
+        </select>
+      </label>
+      <label class="full">Descrição
+        <textarea id="descricao" rows="3" placeholder="Descreva o problema..." required></textarea>
+      </label>
+      <button class="btn primary">Salvar</button>
+      <button type="button" id="btnCancelar" class="btn">Cancelar</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Lista de Chamados</h2>
+    <div class="toolbar">
+      <input id="filtroBusca" placeholder="Buscar por título..." />
+      <select id="filtroStatus">
+        <option value="">Status (todos)</option>
+        <option>Aberto</option><option>Em andamento</option><option>Fechado</option><option>Pendente</option>
+      </select>
+      <select id="filtroPrioridade">
+        <option value="">Prioridade (todas)</option>
+        <option>Alta</option><option>Média</option><option>Baixa</option>
+      </select>
+    </div>
+    <table class="table" id="tblChamados">
+      <thead>
+        <tr>
+          <th>Título</th><th>Prioridade</th><th>Status</th><th>Criado por</th><th>Criado em</th><th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<script type="module">
+  import { requireAuth, logout } from "../services/auth_rtdb.js";
+  import { createChamado, listChamados, updateChamado, deleteChamado } from "../services/chamados.js";
+  import { formatDate, toast } from "../assets/utils.js";
+
+  const user = requireAuth();
+  document.getElementById("logoutBtn").addEventListener("click", () => { logout(); window.location.href="./index.html"; });
+
+  const form = document.getElementById("formChamado");
+  const tbody = document.querySelector("#tblChamados tbody");
+
+  async function preencherTabela() {
+    const busca = document.getElementById("filtroBusca").value.trim().toLowerCase();
+    const status = document.getElementById("filtroStatus").value;
+    const prioridade = document.getElementById("filtroPrioridade").value;
+
+    const data = await listChamados({ busca, status, prioridade });
+    tbody.innerHTML = "";
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="muted">Sem registros</td></tr>`;
+      return;
+    }
+    for (const c of data) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${c.titulo}</td>
+        <td><span class="pill ${c.prioridade}">${c.prioridade}</span></td>
+        <td>${c.status}</td>
+        <td>${c.criadoPor?.username || "-"}</td>
+        <td>${formatDate(c.criadoEm)}</td>
+        <td>
+          <button class="btn xs" data-edit="${c.id}">Editar</button>
+          <button class="btn xs danger" data-del="${c.id}">Excluir</button>
+        </td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = {
+      titulo: document.getElementById("titulo").value.trim(),
+      descricao: document.getElementById("descricao").value.trim(),
+      prioridade: document.getElementById("prioridade").value,
+      status: document.getElementById("status").value
+    };
+    const id = document.getElementById("chamadoId").value;
+    try {
+      if (id) {
+        await updateChamado(id, payload);
+        toast("Chamado atualizado ✔️","success");
+      } else {
+        await createChamado(payload);
+        toast("Chamado criado ✔️","success");
+      }
+      form.reset(); document.getElementById("chamadoId").value = "";
+      await preencherTabela();
+    } catch (err) {
+      toast(err.message, "error");
+    }
+  });
+
+  document.getElementById("btnCancelar").addEventListener("click", () => {
+    form.reset(); document.getElementById("chamadoId").value = "";
+  });
+
+  tbody.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    const id = btn.dataset.edit || btn.dataset.del;
+    if (btn.dataset.edit) {
+      // carrega dados na UI (básico; para descrição fiel, busque do DB pelo id)
+      const row = Array.from(tbody.children).find(tr => tr.querySelector(`[data-edit="${id}"]`));
+      const [titulo, prioridade, status] = Array.from(row.children).slice(0,3).map(td => td.textContent.trim());
+      document.getElementById("titulo").value = titulo;
+      document.getElementById("prioridade").value = prioridade;
+      document.getElementById("status").value = status;
+      document.getElementById("descricao").value = "";
+      document.getElementById("chamadoId").value = id;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (btn.dataset.del) {
+      if (confirm("Deseja excluir este chamado?")) {
+        await deleteChamado(id);
+        toast("Chamado excluído","info");
+        await preencherTabela();
+      }
+    }
+  });
+
+  ["filtroBusca","filtroStatus","filtroPrioridade"].forEach(id => {
+    document.getElementById(id).addEventListener("input", preencherTabela);
+    document.getElementById(id).addEventListener("change", preencherTabela);
+  });
+
+  preencherTabela();
+</script>
+</body>
+</html>

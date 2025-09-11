@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard • SPS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="../assets/style.css" rel="stylesheet" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">SPS • Dashboard</div>
+    <nav class="nav">
+      <a href="./dashboard.html" class="active">Dashboard</a>
+      <a href="./chamados.html">Chamados</a>
+      <a href="./usuarios.html">Usuários</a>
+      <button id="logoutBtn" class="btn danger outline">Sair</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="grid kpis">
+      <div class="kpi"><div class="kpi-value" id="kpiTotal">—</div><div class="kpi-label">Chamados (Total)</div></div>
+      <div class="kpi"><div class="kpi-value" id="kpiAbertos">—</div><div class="kpi-label">Abertos</div></div>
+      <div class="kpi"><div class="kpi-value" id="kpiFechados">—</div><div class="kpi-label">Fechados</div></div>
+      <div class="kpi"><div class="kpi-value" id="kpiPendentes">—</div><div class="kpi-label">Pendentes</div></div>
+    </section>
+
+    <section class="panel">
+      <h2>Chamados por Prioridade</h2>
+      <canvas id="chartPrioridade" height="140"></canvas>
+    </section>
+
+    <section class="panel">
+      <h2>Chamados por Status</h2>
+      <canvas id="chartStatus" height="140"></canvas>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import { requireAuth, logout } from "../services/auth_rtdb.js";
+    import { loadKpis, loadChartData } from "../services/dashboard.js";
+    import { toast } from "../assets/utils.js";
+
+    const user = requireAuth(); // redireciona se não logado
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      logout(); toast("Sessão encerrada", "info"); window.location.href = "./index.html";
+    });
+
+    // KPIs
+    const setText = (id, v) => document.getElementById(id).textContent = v;
+    const k = await loadKpis();
+    setText("kpiTotal", k.total);
+    setText("kpiAbertos", k.abertos);
+    setText("kpiFechados", k.fechados);
+    setText("kpiPendentes", k.pendentes);
+
+    // Charts
+    const { porPrioridade, porStatus } = await loadChartData();
+
+    const ctxP = document.getElementById("chartPrioridade");
+    new Chart(ctxP, {
+      type: "doughnut",
+      data: {
+        labels: Object.keys(porPrioridade),
+        datasets: [{ data: Object.values(porPrioridade), backgroundColor: ["#ff6961","#f8d66d","#77dd77","#84b6f4","#cdb4db"] }]
+      },
+      options: { plugins: { legend: { position: "bottom" } } }
+    });
+
+    const ctxS = document.getElementById("chartStatus");
+    new Chart(ctxS, {
+      type: "bar",
+      data: {
+        labels: Object.keys(porStatus),
+        datasets: [{ label: "Qtd", data: Object.values(porStatus), backgroundColor: "#84b6f4" }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+  </script>
+</body>
+</html>

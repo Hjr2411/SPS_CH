@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Usuários • SPS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="../assets/style.css" rel="stylesheet" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">SPS • Usuários</div>
+  <nav class="nav">
+    <a href="./dashboard.html">Dashboard</a>
+    <a href="./chamados.html">Chamados</a>
+    <a href="./usuarios.html" class="active">Usuários</a>
+    <button id="logoutBtn" class="btn danger outline">Sair</button>
+  </nav>
+</header>
+
+<main class="container">
+  <section class="panel">
+    <h2>Novo/Editar Usuário</h2>
+    <form id="formUsuario" class="grid form">
+      <input type="hidden" id="usuarioId" />
+      <label>Usuário
+        <input id="u_username" required />
+      </label>
+      <label>Senha
+        <input id="u_password" type="text" required />
+      </label>
+      <label>Perfil
+        <select id="u_role" required>
+          <option value="admin">admin</option>
+          <option value="user">user</option>
+        </select>
+      </label>
+      <label>Ativo?
+        <select id="u_active" required>
+          <option value="true">Sim</option><option value="false">Não</option>
+        </select>
+      </label>
+      <button class="btn primary">Salvar</button>
+      <button type="button" id="btnCancelar" class="btn">Cancelar</button>
+    </form>
+    <p class="muted">Atenção: exemplo simples com senha em texto (em produção use Auth/Hash). ❗</p>
+  </section>
+
+  <section class="panel">
+    <h2>Lista de Usuários</h2>
+    <table class="table" id="tblUsuarios">
+      <thead>
+        <tr><th>Usuário</th><th>Perfil</th><th>Ativo</th><th>Criado</th><th>Ações</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<script type="module">
+  import { requireAuth, requireAdmin, logout } from "../services/auth_rtdb.js";
+  import { listUsuarios, createUsuario, updateUsuario, deleteUsuario } from "../services/usuarios.js";
+  import { toast, formatDate } from "../assets/utils.js";
+
+  const user = requireAuth();
+  requireAdmin(user); // restringe tela aos admins
+
+  document.getElementById("logoutBtn").addEventListener("click", () => { logout(); window.location.href="./index.html"; });
+
+  const tbody = document.querySelector("#tblUsuarios tbody");
+  const form = document.getElementById("formUsuario");
+
+  async function carregar() {
+    const data = await listUsuarios();
+    tbody.innerHTML = "";
+    if (!data.length) { tbody.innerHTML = `<tr><td colspan="5" class="muted">Sem usuários</td></tr>`; return; }
+    for (const u of data) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${u.username}</td>
+        <td>${u.role}</td>
+        <td>${u.active ? "Sim":"Não"}</td>
+        <td>${formatDate(u.criadoEm)}</td>
+        <td>
+          <button class="btn xs" data-edit="${u.id}">Editar</button>
+          <button class="btn xs danger" data-del="${u.id}">Excluir</button>
+        </td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = {
+      username: document.getElementById("u_username").value.trim(),
+      password: document.getElementById("u_password").value,
+      role: document.getElementById("u_role").value,
+      active: document.getElementById("u_active").value === "true"
+    };
+    const id = document.getElementById("usuarioId").value;
+    try {
+      if (id) { await updateUsuario(id, payload); toast("Usuário atualizado","success"); }
+      else { await createUsuario(payload); toast("Usuário criado","success"); }
+      form.reset(); document.getElementById("usuarioId").value = "";
+      await carregar();
+    } catch (err) { toast(err.message, "error"); }
+  });
+
+  document.getElementById("btnCancelar").addEventListener("click", () => {
+    form.reset(); document.getElementById("usuarioId").value = "";
+  });
+
+  tbody.addEventListener("click", async (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    const id = b.dataset.edit || b.dataset.del;
+    if (b.dataset.edit) {
+      const tr = b.closest("tr");
+      document.getElementById("u_username").value = tr.children[0].textContent.trim();
+      document.getElementById("u_role").value = tr.children[1].textContent.trim();
+      document.getElementById("u_active").value = tr.children[2].textContent.trim() === "Sim" ? "true" : "false";
+      document.getElementById("usuarioId").value = id;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (b.dataset.del) {
+      if (confirm("Excluir este usuário?")) {
+        await deleteUsuario(id);
+        toast("Usuário excluído","info");
+        await carregar();
+      }
+    }
+  });
+
+  carregar();
+</script>
+</body>
+</html>
