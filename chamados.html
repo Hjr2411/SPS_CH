@@ -2,29 +2,35 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Chamados • SPS (v1.1.1)</title>
+  <title>Chamados • SPS (v1.1.3)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="./assets/style.css" />
   <style>
-    /* ===== v1.1.1 — Overrides de contraste e UX ===== */
+    /* ===== v1.1.3 – Contraste melhorado e destaque avermelhado para repetidas ===== */
     :root{
-      --bg: #0b1220;
-      --panel: #0f172a;
-      --field: #121a2d;        /* fundo dos inputs */
-      --field-hover:#17223a;
-      --field-border:#334155;  /* borda visível */
-      --field-text:#e5e7eb;    /* texto claro */
-      --field-placeholder:#94a3b8;
-      --accent:#60a5fa;
-      --danger:#ef4444;
-      --muted:#94a3b8;
-      --row-alt:#0d1528;
-      --row-hover:#131e36;
-      --rep-bg:#2a1212;        /* destaque recorrente */
-      --rep-text:#fca5a5;
+      --bg: #0b0b10;
+      --panel: #121218;
+      --field: #171720;
+      --field-hover:#1e1e2a;
+      --field-border:#3a3a48;
+      --field-text:#f2f2f5;
+      --field-placeholder:#b4b4c4;
+      --muted:#9aa0a6;
+      --row-alt:#151521;
+      --row-hover:#1b1b2a;
+
+      /* Tons avermelhados para recorrentes */
+      --rep-bg:#2a0f13;       /* fundo da linha */
+      --rep-bg-hover:#351318; /* hover da linha repetida */
+      --rep-text:#ffb4b4;     /* texto e títulos */
+      --rep-pill-bg:#3b0a0e;
+      --rep-pill-border:#ef4444;
+      --rep-pill-text:#fecaca;
     }
+
     body{ background:var(--bg); color:var(--field-text); }
     .panel{ background:var(--panel); }
+
     /* Campos */
     input, select, textarea{
       background:var(--field);
@@ -34,50 +40,63 @@
     input:hover, select:hover, textarea:hover{ background:var(--field-hover); }
     input::placeholder, textarea::placeholder{ color:var(--field-placeholder); }
     label{ color:var(--field-text); }
-    .req::after { content:" *"; color:var(--danger); font-weight:700; }
+    .req::after { content:" *"; color:#ef4444; font-weight:700; }
     .hint { font-size:.85rem; color: var(--muted); }
+
     /* Grid 3×3 responsivo */
     .grid.form { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
     @media (max-width: 900px){ .grid.form { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 600px){ .grid.form { grid-template-columns: 1fr; } }
+
     /* Tabela */
-    table.table thead th{ color:#cbd5e1; border-bottom:1px solid var(--field-border); }
+    table.table thead th{ color:#e4e6eb; border-bottom:1px solid var(--field-border); }
     table.table tbody tr:nth-child(even){ background:var(--row-alt); }
     table.table tbody tr:hover{ background:var(--row-hover); }
+
     /* Tooltip/icone */
     .icon-btn { background: transparent; border: none; cursor: pointer; color: var(--field-text); }
     .tooltip { position: relative; }
     .tooltip[data-tip]:hover::after {
       content: attr(data-tip);
       position: absolute; left: 50%; transform: translateX(-50%); bottom: 120%;
-      white-space: pre-wrap; max-width: 360px; padding: .6rem .8rem;
-      background: #0b1020; border:1px solid var(--field-border); border-radius: 10px;
-      color: var(--field-text); box-shadow: 0 8px 20px rgba(0,0,0,.35); z-index: 50;
+      white-space: pre-wrap; max-width: 420px; padding: .6rem .8rem;
+      background: #101018; border:1px solid var(--field-border); border-radius: 10px;
+      color: var(--field-text); box-shadow: 0 8px 20px rgba(0,0,0,.45); z-index: 50;
     }
+
     /* KPI/filtros */
-    .kpi { font-weight: 700; color:#e2e8f0; }
+    .kpi { font-weight: 800; color:#ffffff; }
     .toolbar { display:flex; gap:.6rem; align-items:end; flex-wrap:wrap; }
     .toolbar .stat { display:flex; align-items:center; gap:.4rem; white-space:nowrap; }
-    /* Recorrência */
-    .repetida-cell{ font-weight:800; color: var(--rep-text); }
+
+    /* Destaque avermelhado para LINHAS REPETIDAS (aplica-se à linha inteira e células relevantes) */
     .repetida-row{ background: var(--rep-bg) !important; }
-    .pill { padding:.1rem .4rem; border-radius: 999px; font-size:.75rem; border:1px solid #ef4444; color:#fecaca; }
-    /* Ocultar link usuários dinamicamente se não-admin (fallback se JS desligado) */
+    .repetida-row:hover{ background: var(--rep-bg-hover) !important; }
+    .repetida-cell{ font-weight:900; color: var(--rep-text); text-shadow: 0 0 6px rgba(255, 75, 75, 0.35); }
+    .pill {
+      padding:.12rem .5rem; border-radius: 999px; font-size:.75rem; font-weight:700;
+      border:1px solid var(--rep-pill-border); color:var(--rep-pill-text); background: var(--rep-pill-bg);
+    }
+
+    /* Ocultar link usuários se não-admin (fallback) */
     .hide { display:none !important; }
   </style>
   <!--
-    Chamados v1.1.1 – changelog:
-    - Correção: contagem/realce de linhas recorrentes (app/l_recorrente/<msisdn>)
-    - Melhoria de contraste: campos, tabela, hovers e tooltips
+    v1.1.3 – changelog:
+    - Correção definitiva da contagem de MSISDNs repetidos: normalização usa SEMPRE os 11 últimos dígitos
+    - Reconstrução do nó app/l_recorrente quando ausente/vazio com base em app/chamados
+    - Destaque avermelhado forte para registros repetidos (linha inteira + células MSISDN e Chamado)
+    - Contraste nos campos e tabela melhorado
+    - Filtro padrão mês atual; KPIs "Mês atual" e "Listados"
   -->
 </head>
 <body>
 <header class="topbar">
   <div class="brand">SPS • Chamados</div>
   <nav class="nav">
-<!--    <a href="./dashboard.html">Dashboard</a> -->
+  <!--  <a href="./dashboard.html">Dashboard</a> -->
     <a href="./chamados.html" class="active">Chamados</a>
- <!--   <a href="./usuarios.html" id="navUsuarios">Usuários</a> -->
+   <!-- <a href="./usuarios.html" id="navUsuarios">Usuários</a> -->
     <button id="logoutBtn" class="btn danger outline">Sair</button>
   </nav>
 </header>
@@ -96,16 +115,16 @@
       </label>
       <label>Data/Hora
         <input id="data" type="datetime-local" />
-        <span class="hint">Se vazio, usa agora.</span>
+        <span class="hint">deixe vazio.</span>
       </label>
       <label class="req">Chamado
-        <input id="chamado" type="text" placeholder="PDST-XXXXXX" required />
+        <input id="chamado" type="text" placeholder="Título do chamado" required />
       </label>
 
       <!-- Linha 2: MSISDN | Equipamento | Cenário -->
       <label class="req">MSISDN
-        <input id="msisdn" type="text" inputmode="numeric" maxlength="11" placeholder="Ex.: 11987654321" required />
-        <span class="hint">11 dígitos (DDD+número).</span>
+        <input id="msisdn" type="text" inputmode="numeric" maxlength="20" placeholder="Ex.: 11987654321 ou 55..." required />
+        <span class="hint">Normalizamos para os 11 últimos dígitos.</span>
       </label>
       <label>Equipamento
         <select id="equipamentoSelect"></select>
@@ -159,9 +178,9 @@
       <button id="btnExportar" class="btn outline">Exportar CSV</button>
     </div>
 
-    <div class="ranking" id="boxRanking" style="display:none">
-      <strong>Ranking de linhas recorrentes</strong>
-      <table>
+    <div id="boxRanking" style="display:none; margin-top:.5rem; border:1px dashed var(--field-border); border-radius:8px; padding:.5rem;">
+      <strong style="color:var(--rep-text)">Ranking de linhas recorrentes</strong>
+      <table style="width:100%; font-size:.92rem;">
         <thead><tr><th>MSISDN</th><th>Qtd</th></tr></thead>
         <tbody id="rankBody"></tbody>
       </table>
@@ -192,14 +211,14 @@
   import { rtdb } from "./config/firebase_config.js";
   import { ref, get, child, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
-  /* ========= Sessão / Permissões ========= */
+  /* ===== Sessão / Permissões ===== */
   const session = requireAuth();
   const isAdmin = session?.role === "admin";
   const currentUser = session?.username || "-";
   document.getElementById("logoutBtn").addEventListener("click", () => { logout(); window.location.href="./index.html"; });
   if (!isAdmin) { const nu = document.getElementById("navUsuarios"); if (nu) nu.classList.add("hide"); }
 
-  /* ========= Refs ========= */
+  /* ===== Refs ===== */
   const form = document.getElementById("formChamado");
   const inId = document.getElementById("chamadoId");
   const inMsisdnOld = document.getElementById("msisdnOld");
@@ -227,18 +246,26 @@
 
   document.getElementById("btnFiltrar").addEventListener("click", preencherTabela);
   document.getElementById("btnLimpar").addEventListener("click", () => {
-    setDefaultMonthFilters(); filtroBusca.value = ""; filtroEquip.value=""; filtroCen.value=""; filtroRepetidas.checked=false;
+    setDefaultMonthFilters(); filtroBusca.value=""; filtroEquip.value=""; filtroCen.value=""; filtroRepetidas.checked=false;
     preencherTabela();
   });
   document.getElementById("btnExportar").addEventListener("click", exportarCSV);
 
-  /* ========= Estado/Utils ========= */
-  inAnalista.value = currentUser;
-
+  /* ===== Utils ===== */
   const onlyDigits = (s) => (s || "").replace(/\D+/g,"");
-  const validarMSISDN = (v) => onlyDigits(v).length === 11; // só no form
+  const validarMSISDN = (v) => {
+    const d = onlyDigits(v);
+    return d.length >= 11; // aceitamos mais, normalizamos para os últimos 11
+  };
   const parseDTLocal = (v) => { if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d.getTime(); };
   const toDTLocalValue = (ms) => { const d=new Date(ms); const pad=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+
+  // CHAVE NORMALIZADA: SEMPRE OS ÚLTIMOS 11 DÍGITOS
+  const keyFrom = (c) => {
+    const raw = onlyDigits(c?.linha || c?.msisdn || "");
+    if (raw.length <= 11) return raw;
+    return raw.slice(-11);
+  };
 
   function toggleOutro(selectEl, inputEl) {
     if (selectEl.value === "__outro__") { inputEl.style.display = ""; inputEl.focus(); }
@@ -247,7 +274,7 @@
   selEquip.addEventListener("change", () => toggleOutro(selEquip, inEqOutro));
   selCen.addEventListener("change", () => toggleOutro(selCen, inCenOutro));
 
-  /* ========= Listas para selects e filtros ========= */
+  /* ===== Listas para selects e filtros ===== */
   async function carregarListas() {
     const eqSnap = await get(child(ref(rtdb), "app/listas/equipamentos"));
     const eqArr = eqSnap.exists() ? eqSnap.val().map(String).filter(Boolean) : [];
@@ -260,7 +287,7 @@
     filtroCen.innerHTML = `<option value="">(todos)</option>${mk(cenArr)}`;
   }
 
-  /* ========= Mês atual ========= */
+  /* ===== Mês atual ===== */
   function getMonthBounds(ts = Date.now()) {
     const d = new Date(ts);
     const start = new Date(d.getFullYear(), d.getMonth(), 1, 0,0,0,0).getTime();
@@ -272,8 +299,6 @@
     filtroDataIni.value = toDTLocalValue(start);
     filtroDataFim.value = toDTLocalValue(end);
   }
-
-  /* ========= KPI do mês ========= */
   async function atualizarTotalMes() {
     const all = await listChamados({});
     const { start, end } = getMonthBounds();
@@ -283,8 +308,23 @@
     }).length;
   }
 
-  /* ========= Recorrência (app/l_recorrente/<msisdn>) ========= */
-  let recorrenteMap = new Map(); // msisdn -> count
+  /* ===== Recorrência ===== */
+  let recorrenteMap = new Map(); // msisdn->count (normalizado 11 dígitos)
+
+  async function rebuildRecorrenciasFromChamados() {
+    const all = await listChamados({});
+    const tmp = new Map();
+    for (const c of all) {
+      const k = keyFrom(c);
+      if (k.length !== 11) continue;
+      tmp.set(k, (tmp.get(k) || 0) + 1);
+    }
+    const payload = {};
+    for (const [k,v] of tmp.entries()) payload[k] = { count: v, lastAt: Date.now() };
+    await set(child(ref(rtdb), "app/l_recorrente"), payload);
+    return tmp;
+  }
+
   async function carregarRecorrencias() {
     recorrenteMap.clear();
     const snap = await get(child(ref(rtdb), "app/l_recorrente"));
@@ -292,8 +332,12 @@
       const obj = snap.val();
       for (const [k,v] of Object.entries(obj)) recorrenteMap.set(k, Number(v?.count||0));
     }
+    if (recorrenteMap.size === 0) {
+      recorrenteMap = await rebuildRecorrenciasFromChamados();
+    }
     montarRanking();
   }
+
   function montarRanking() {
     const arr = [...recorrenteMap.entries()].filter(([,count]) => count > 1)
       .sort((a,b)=> b[1]-a[1]).slice(0,50);
@@ -301,22 +345,23 @@
     boxRanking.style.display = "";
     rankBody.innerHTML = arr.map(([msisdn,count]) => `<tr><td>${msisdn}</td><td>${count}</td></tr>`).join("");
   }
+
   async function incRecorrencia(msisdn, delta = 1) {
-    if (!msisdn) return;
-    const node = child(ref(rtdb), `app/l_recorrente/${msisdn}`);
-    const snap = await get(node);
-    const cur = snap.exists() ? Number(snap.val()?.count || 0) : 0;
+    const d = onlyDigits(msisdn || "");
+    const k = d.length <= 11 ? d : d.slice(-11);
+    if (!k) return;
+    const cur = recorrenteMap.get(k) || 0;
     const next = Math.max(0, cur + delta);
-    await set(node, { count: next, lastAt: Date.now() });
-    recorrenteMap.set(msisdn, next);
+    recorrenteMap.set(k, next);
+    await set(child(ref(rtdb), `app/l_recorrente/${k}`), { count: next, lastAt: Date.now() });
     montarRanking();
   }
 
-  /* ========= Tabela (filtros padrão mês atual; destaque recorrentes) ========= */
+  /* ===== Tabela (padrão: mês atual; destaque repetidas em vermelho) ===== */
   async function preencherTabela() {
     const busca = (filtroBusca.value || "").trim().toLowerCase();
-    const dtIni = (filtroDataIni.value) ? parseDTLocal(filtroDataIni.value) : getMonthBounds().start; // default mês atual
-    const dtFim = (filtroDataFim.value) ? parseDTLocal(filtroDataFim.value) : getMonthBounds().end;   // default mês atual
+    const dtIni = (filtroDataIni.value) ? parseDTLocal(filtroDataIni.value) : getMonthBounds().start;
+    const dtFim = (filtroDataFim.value) ? parseDTLocal(filtroDataFim.value) : getMonthBounds().end;
     const eqSel = filtroEquip.value;
     const cenSel = filtroCen.value;
     const onlyRep = filtroRepetidas.checked;
@@ -327,10 +372,15 @@
       if (created < dtIni || created > dtFim) return false;
       if (eqSel && c.equipamento !== eqSel) return false;
       if (cenSel && c.cenario !== cenSel) return false;
-      const bucket = [c.titulo, c.linha, c.criadoPor?.username]
+
+      const bucket = [c.titulo, keyFrom(c), c.criadoPor?.username]
         .map(v => String(v || "").toLowerCase()).join("|");
       if (busca && !bucket.includes(busca)) return false;
-      if (onlyRep) { const qtd = recorrenteMap.get(String(c.linha)) || 0; if (qtd <= 1) return false; }
+
+      if (onlyRep) {
+        const qtd = recorrenteMap.get(keyFrom(c)) || 0;
+        if (qtd <= 1) return false;
+      }
       return true;
     });
 
@@ -345,18 +395,15 @@
     for (const c of filtered) {
       const obs = c.descricao || "";
       const canEdit = isAdmin || (c.criadoPor?.username === currentUser);
-      const repCount = recorrenteMap.get(String(c.linha)) || 0;
-      const repClass = repCount > 1 ? "repetida-cell" : "";
-      const rowClass = repCount > 1 ? "repetida-row" : "";
-      const repBadge = repCount > 1 ? ` <span class="pill" title="Recorrências">${repCount}×</span>` : "";
+      const repCount = recorrenteMap.get(keyFrom(c)) || 0;
+      const row = document.createElement("tr");
+      if (repCount > 1) row.classList.add("repetida-row");
 
-      const tr = document.createElement("tr");
-      if (rowClass) tr.classList.add(rowClass);
-      tr.innerHTML = `
+      row.innerHTML = `
         <td>${formatDate(c.criadoEm)}</td>
         <td>${c.criadoPor?.username || "-"}</td>
-        <td class="${repClass}">${c.titulo || "-"}${repBadge}</td>
-        <td class="${repClass}">${c.linha || "-"}</td>
+        <td class="${repCount>1?'repetida-cell':''}">${c.titulo || "-"}${repCount>1?` <span class="pill" title="Recorrências">${repCount}×</span>`:''}</td>
+        <td class="${repCount>1?'repetida-cell':''}">${keyFrom(c) || "-"}</td>
         <td>${c.equipamento || "-"}</td>
         <td>${c.cenario || "-"}</td>
         <td>
@@ -366,11 +413,11 @@
           <button class="btn xs" data-edit="${c.id}" ${canEdit ? "" : "disabled"}>Editar</button>
           ${isAdmin ? `<button class="btn xs danger" data-del="${c.id}">Excluir</button>` : ""}
         </td>`;
-      tbody.appendChild(tr);
+      tbody.appendChild(row);
     }
   }
 
-  /* ========= Copiar observação ========= */
+  /* ===== Copiar observação ===== */
   tbody.addEventListener("click", async (e) => {
     const btn = e.target.closest("button.icon-btn");
     if (!btn) return;
@@ -378,12 +425,23 @@
     catch { toast("Falha ao copiar.", "error"); }
   });
 
-  /* ========= Salvar (criar/editar) com ajuste de recorrência ========= */
+  /* ===== Cancelar ===== */
+  document.getElementById("btnCancelar").addEventListener("click", () => {
+    form.reset(); inId.value = ""; inMsisdnOld.value = ""; inAnalista.value = currentUser;
+    inEqOutro.style.display="none"; inCenOutro.style.display="none";
+  });
+
+  /* ===== Salvar (criar/editar) ===== */
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const msisdn = onlyDigits(inMSISDN.value);
-    if (!validarMSISDN(msisdn)) { toast("MSISDN deve ter 11 dígitos.", "error"); inMSISDN.focus(); return; }
+    const msisdnRaw = inMSISDN.value;
+    if (!validarMSISDN(msisdnRaw)) { toast("Informe pelo menos 11 dígitos para o MSISDN.", "error"); inMSISDN.focus(); return; }
+    const msisdn = (() => {
+      const d = onlyDigits(msisdnRaw);
+      return d.length <= 11 ? d : d.slice(-11);
+    })();
+
     if (!inChamado.value.trim()) { toast("Campo 'Chamado' é obrigatório.", "error"); inChamado.focus(); return; }
 
     const equipamento = selEquip.value === "__outro__" ? (inEqOutro.value || "").trim() : selEquip.value;
@@ -393,7 +451,10 @@
 
     const base = { titulo: inChamado.value.trim(), descricao, prioridade: "Média", status: "Aberto" };
     const id = inId.value;
-    const old = onlyDigits(inMsisdnOld.value || "");
+    const old = (() => {
+      const d = onlyDigits(inMsisdnOld.value || "");
+      return d.length <= 11 ? d : d.slice(-11);
+    })();
 
     try {
       if (id) {
@@ -425,13 +486,7 @@
     }
   });
 
-  /* ========= Cancelar ========= */
-  document.getElementById("btnCancelar").addEventListener("click", () => {
-    form.reset(); inId.value = ""; inMsisdnOld.value = ""; inAnalista.value = currentUser;
-    inEqOutro.style.display="none"; inCenOutro.style.display="none";
-  });
-
-  /* ========= Editar/Excluir ========= */
+  /* ===== Editar/Excluir ===== */
   document.querySelector("#tblChamados tbody").addEventListener("click", async (e) => {
     const b = e.target.closest("button"); if (!b) return;
     const id = b.dataset.edit || b.dataset.del;
@@ -443,7 +498,7 @@
 
       inChamado.value = row[2].textContent.trim();
       inMSISDN.value = linhaTxt;
-      inMsisdnOld.value = onlyDigits(linhaTxt);
+      inMsisdnOld.value = onlyDigits(linhaTxt).slice(-11);
 
       const eq = row[4].textContent.trim();
       if ([...selEquip.options].some(o=>o.value===eq)) { selEquip.value = eq; inEqOutro.style.display="none"; inEqOutro.value=""; }
@@ -463,7 +518,7 @@
       if (confirm("Excluir este chamado?")) {
         const linhaTxt = b.closest("tr").children[3].textContent.trim();
         await deleteChamado(id);
-        await incRecorrencia(onlyDigits(linhaTxt), -1);
+        await incRecorrencia(onlyDigits(linhaTxt).slice(-11), -1);
         toast("Chamado excluído", "info");
         await carregarRecorrencias();
         await atualizarTotalMes();
@@ -472,7 +527,7 @@
     }
   });
 
-  /* ========= Export CSV ========= */
+  /* ===== Export CSV ===== */
   async function exportarCSV() {
     const busca = (filtroBusca.value || "").trim().toLowerCase();
     const dtIni = (filtroDataIni.value) ? parseDTLocal(filtroDataIni.value) : getMonthBounds().start;
@@ -487,18 +542,18 @@
       if (created < dtIni || created > dtFim) return false;
       if (eqSel && c.equipamento !== eqSel) return false;
       if (cenSel && c.cenario !== cenSel) return false;
-      const bucket = [c.titulo, c.linha, c.criadoPor?.username]
+      const bucket = [c.titulo, keyFrom(c), c.criadoPor?.username]
         .map(v => String(v||"").toLowerCase()).join("|");
       if (busca && !bucket.includes(busca)) return false;
-      if (onlyRep) { const qtd = recorrenteMap.get(String(c.linha)) || 0; if (qtd <= 1) return false; }
+      if (onlyRep) { const qtd = recorrenteMap.get(keyFrom(c)) || 0; if (qtd <= 1) return false; }
       return true;
     });
 
     const rows = [];
     rows.push(["Data","Analista","Chamado","MSISDN","Equipamento","Cenário","Observações","Recorrências"]);
     for (const c of filtered) {
-      const rep = recorrenteMap.get(String(c.linha)) || 0;
-      rows.push([formatDate(c.criadoEm), c.criadoPor?.username || "", c.titulo || "", c.linha || "", c.equipamento || "", c.cenario || "", c.descricao || "", rep]);
+      const rep = recorrenteMap.get(keyFrom(c)) || 0;
+      rows.push([formatDate(c.criadoEm), c.criadoPor?.username || "", c.titulo || "", keyFrom(c) || "", c.equipamento || "", c.cenario || "", c.descricao || "", rep]);
     }
     const csv = "\uFEFF" + rows.map(r => r.map(cell => `"${String(cell??"").replace(/"/g,'""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -508,12 +563,13 @@
     document.body.appendChild(a); a.click(); a.remove();
   }
 
-  /* ========= Boot ========= */
+  /* ===== Boot ===== */
+  inAnalista.value = currentUser;
   await carregarListas();
-  setDefaultMonthFilters();          // por padrão → mês atual
-  await carregarRecorrencias();      // carrega/mostra ranking e habilita destaque
-  await atualizarTotalMes();         // KPI do mês
-  await preencherTabela();           // lista inicial (mês atual)
+  setDefaultMonthFilters();             // padrão: mês atual
+  await carregarRecorrencias();         // carrega ou reconstrói l_recorrente
+  await atualizarTotalMes();            // KPI
+  await preencherTabela();              // lista inicial
 </script>
 </body>
 </html>
