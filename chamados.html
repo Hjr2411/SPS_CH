@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chamados • SPS (v1.1.1)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./assets/style.css" />
+  <style>
+    /* ===== v1.1.1 — Overrides de contraste e UX ===== */
+    :root{
+      --bg: #0b1220;
+      --panel: #0f172a;
+      --field: #121a2d;        /* fundo dos inputs */
+      --field-hover:#17223a;
+      --field-border:#334155;  /* borda visível */
+      --field-text:#e5e7eb;    /* texto claro */
+      --field-placeholder:#94a3b8;
+      --accent:#60a5fa;
+      --danger:#ef4444;
+      --muted:#94a3b8;
+      --row-alt:#0d1528;
+      --row-hover:#131e36;
+      --rep-bg:#2a1212;        /* destaque recorrente */
+      --rep-text:#fca5a5;
+    }
+    body{ background:var(--bg); color:var(--field-text); }
+    .panel{ background:var(--panel); }
+    /* Campos */
+    input, select, textarea{
+      background:var(--field);
+      border:1px solid var(--field-border);
+      color:var(--field-text);
+    }
+    input:hover, select:hover, textarea:hover{ background:var(--field-hover); }
+    input::placeholder, textarea::placeholder{ color:var(--field-placeholder); }
+    label{ color:var(--field-text); }
+    .req::after { content:" *"; color:var(--danger); font-weight:700; }
+    .hint { font-size:.85rem; color: var(--muted); }
+    /* Grid 3×3 responsivo */
+    .grid.form { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 900px){ .grid.form { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px){ .grid.form { grid-template-columns: 1fr; } }
+    /* Tabela */
+    table.table thead th{ color:#cbd5e1; border-bottom:1px solid var(--field-border); }
+    table.table tbody tr:nth-child(even){ background:var(--row-alt); }
+    table.table tbody tr:hover{ background:var(--row-hover); }
+    /* Tooltip/icone */
+    .icon-btn { background: transparent; border: none; cursor: pointer; color: var(--field-text); }
+    .tooltip { position: relative; }
+    .tooltip[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute; left: 50%; transform: translateX(-50%); bottom: 120%;
+      white-space: pre-wrap; max-width: 360px; padding: .6rem .8rem;
+      background: #0b1020; border:1px solid var(--field-border); border-radius: 10px;
+      color: var(--field-text); box-shadow: 0 8px 20px rgba(0,0,0,.35); z-index: 50;
+    }
+    /* KPI/filtros */
+    .kpi { font-weight: 700; color:#e2e8f0; }
+    .toolbar { display:flex; gap:.6rem; align-items:end; flex-wrap:wrap; }
+    .toolbar .stat { display:flex; align-items:center; gap:.4rem; white-space:nowrap; }
+    /* Recorrência */
+    .repetida-cell{ font-weight:800; color: var(--rep-text); }
+    .repetida-row{ background: var(--rep-bg) !important; }
+    .pill { padding:.1rem .4rem; border-radius: 999px; font-size:.75rem; border:1px solid #ef4444; color:#fecaca; }
+    /* Ocultar link usuários dinamicamente se não-admin (fallback se JS desligado) */
+    .hide { display:none !important; }
+  </style>
+  <!--
+    Chamados v1.1.1 – changelog:
+    - Correção: contagem/realce de linhas recorrentes (app/l_recorrente/<msisdn>)
+    - Melhoria de contraste: campos, tabela, hovers e tooltips
+  -->
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">SPS • Chamados</div>
+  <nav class="nav">
+<!--    <a href="./dashboard.html">Dashboard</a> -->
+    <a href="./chamados.html" class="active">Chamados</a>
+ <!--   <a href="./usuarios.html" id="navUsuarios">Usuários</a> -->
+    <button id="logoutBtn" class="btn danger outline">Sair</button>
+  </nav>
+</header>
+
+<main class="container">
+  <!-- FORM 3×3 -->
+  <section class="panel">
+    <h2>Novo Chamado</h2>
+    <form id="formChamado" class="grid form" autocomplete="off">
+      <input type="hidden" id="chamadoId" />
+      <input type="hidden" id="msisdnOld" />
+
+      <!-- Linha 1: Analista | Data/Hora | Chamado -->
+      <label>Analista
+        <input id="analista" type="text" readonly />
+      </label>
+      <label>Data/Hora
+        <input id="data" type="datetime-local" />
+        <span class="hint">Se vazio, usa agora.</span>
+      </label>
+      <label class="req">Chamado
+        <input id="chamado" type="text" placeholder="PDST-XXXXXX" required />
+      </label>
+
+      <!-- Linha 2: MSISDN | Equipamento | Cenário -->
+      <label class="req">MSISDN
+        <input id="msisdn" type="text" inputmode="numeric" maxlength="11" placeholder="Ex.: 11987654321" required />
+        <span class="hint">11 dígitos (DDD+número).</span>
+      </label>
+      <label>Equipamento
+        <select id="equipamentoSelect"></select>
+        <input id="equipamentoOutro" placeholder="Outro equipamento" style="display:none" />
+      </label>
+      <label>Cenário
+        <select id="cenarioSelect"></select>
+        <input id="cenarioOutro" placeholder="Outro cenário" style="display:none" />
+      </label>
+
+      <!-- Linha 3: Observações (span 3) -->
+      <label class="full" style="grid-column: 1/-1">Observações
+        <textarea id="observacoes" rows="3" maxlength="300" placeholder="(opcional, até 300 caracteres)"></textarea>
+      </label>
+
+      <button class="btn primary">Salvar</button>
+      <button type="button" id="btnCancelar" class="btn">Cancelar</button>
+    </form>
+  </section>
+
+  <!-- Lista + filtros + Export CSV -->
+  <section class="panel">
+    <h2 style="display:flex; align-items:center; gap:.75rem;">
+      Lista de Chamados
+      <span class="muted" style="font-weight:500;">(Mês atual: <span id="totalMes" class="kpi">0</span>)</span>
+    </h2>
+
+    <div class="toolbar" id="filtersBar">
+      <label style="flex:1; min-width: 220px;">Busca (texto)
+        <input id="filtroBusca" placeholder="msisdn, chamado, analista..." />
+      </label>
+      <label>Equipamento
+        <select id="filtroEquip"><option value="">(todos)</option></select>
+      </label>
+      <label>Cenário
+        <select id="filtroCen"><option value="">(todos)</option></select>
+      </label>
+      <label>De
+        <input id="filtroDataIni" type="datetime-local" />
+      </label>
+      <label>Até
+        <input id="filtroDataFim" type="datetime-local" />
+      </label>
+      <label style="display:flex; gap:.35rem; align-items:center;">
+        <input type="checkbox" id="filtroRepetidas" />
+        <span>Somente repetidas</span>
+      </label>
+      <div class="stat">Listados: <span id="totalListados" class="kpi">0</span></div>
+      <button id="btnFiltrar" class="btn">Aplicar</button>
+      <button id="btnLimpar" class="btn">Limpar</button>
+      <button id="btnExportar" class="btn outline">Exportar CSV</button>
+    </div>
+
+    <div class="ranking" id="boxRanking" style="display:none">
+      <strong>Ranking de linhas recorrentes</strong>
+      <table>
+        <thead><tr><th>MSISDN</th><th>Qtd</th></tr></thead>
+        <tbody id="rankBody"></tbody>
+      </table>
+    </div>
+
+    <table class="table" id="tblChamados">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Analista</th>
+          <th>Chamado</th>
+          <th>Linha/MSISDN</th>
+          <th>Equipamento</th>
+          <th>Cenário</th>
+          <th>Obs.</th>
+          <th style="width:160px">Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<script type="module">
+  import { requireAuth, logout } from "./services/auth.js";
+  import { createChamado, listChamados, updateChamado, deleteChamado } from "./services/chamados.js";
+  import { formatDate, toast } from "./assets/utils.js";
+  import { rtdb } from "./config/firebase_config.js";
+  import { ref, get, child, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+
+  /* ========= Sessão / Permissões ========= */
+  const session = requireAuth();
+  const isAdmin = session?.role === "admin";
+  const currentUser = session?.username || "-";
+  document.getElementById("logoutBtn").addEventListener("click", () => { logout(); window.location.href="./index.html"; });
+  if (!isAdmin) { const nu = document.getElementById("navUsuarios"); if (nu) nu.classList.add("hide"); }
+
+  /* ========= Refs ========= */
+  const form = document.getElementById("formChamado");
+  const inId = document.getElementById("chamadoId");
+  const inMsisdnOld = document.getElementById("msisdnOld");
+  const inAnalista = document.getElementById("analista");
+  const inData = document.getElementById("data");
+  const inChamado = document.getElementById("chamado");
+  const inMSISDN = document.getElementById("msisdn");
+  const selEquip = document.getElementById("equipamentoSelect");
+  const inEqOutro = document.getElementById("equipamentoOutro");
+  const selCen = document.getElementById("cenarioSelect");
+  const inCenOutro = document.getElementById("cenarioOutro");
+  const inObs = document.getElementById("observacoes");
+
+  const tbody = document.querySelector("#tblChamados tbody");
+  const filtroBusca = document.getElementById("filtroBusca");
+  const filtroEquip = document.getElementById("filtroEquip");
+  const filtroCen = document.getElementById("filtroCen");
+  const filtroDataIni = document.getElementById("filtroDataIni");
+  const filtroDataFim = document.getElementById("filtroDataFim");
+  const filtroRepetidas = document.getElementById("filtroRepetidas");
+  const totalMesEl = document.getElementById("totalMes");
+  const totalListadosEl = document.getElementById("totalListados");
+  const rankBody = document.getElementById("rankBody");
+  const boxRanking = document.getElementById("boxRanking");
+
+  document.getElementById("btnFiltrar").addEventListener("click", preencherTabela);
+  document.getElementById("btnLimpar").addEventListener("click", () => {
+    setDefaultMonthFilters(); filtroBusca.value = ""; filtroEquip.value=""; filtroCen.value=""; filtroRepetidas.checked=false;
+    preencherTabela();
+  });
+  document.getElementById("btnExportar").addEventListener("click", exportarCSV);
+
+  /* ========= Estado/Utils ========= */
+  inAnalista.value = currentUser;
+
+  const onlyDigits = (s) => (s || "").replace(/\D+/g,"");
+  const validarMSISDN = (v) => onlyDigits(v).length === 11; // só no form
+  const parseDTLocal = (v) => { if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d.getTime(); };
+  const toDTLocalValue = (ms) => { const d=new Date(ms); const pad=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+
+  function toggleOutro(selectEl, inputEl) {
+    if (selectEl.value === "__outro__") { inputEl.style.display = ""; inputEl.focus(); }
+    else { inputEl.style.display = "none"; inputEl.value = ""; }
+  }
+  selEquip.addEventListener("change", () => toggleOutro(selEquip, inEqOutro));
+  selCen.addEventListener("change", () => toggleOutro(selCen, inCenOutro));
+
+  /* ========= Listas para selects e filtros ========= */
+  async function carregarListas() {
+    const eqSnap = await get(child(ref(rtdb), "app/listas/equipamentos"));
+    const eqArr = eqSnap.exists() ? eqSnap.val().map(String).filter(Boolean) : [];
+    const cenSnap = await get(child(ref(rtdb), "app/listas/cenarios"));
+    const cenArr = cenSnap.exists() ? cenSnap.val().map(String).filter(Boolean) : [];
+    const mk = (arr) => arr.map(v => `<option value="${v}">${v}</option>`).join("");
+    selEquip.innerHTML = `<option value="">(selecione)</option>${mk(eqArr)}<option value="__outro__">Outro…</option>`;
+    selCen.innerHTML = `<option value="">(selecione)</option>${mk(cenArr)}<option value="__outro__">Outro…</option>`;
+    filtroEquip.innerHTML = `<option value="">(todos)</option>${mk(eqArr)}`;
+    filtroCen.innerHTML = `<option value="">(todos)</option>${mk(cenArr)}`;
+  }
+
+  /* ========= Mês atual ========= */
+  function getMonthBounds(ts = Date.now()) {
+    const d = new Date(ts);
+    const start = new Date(d.getFullYear(), d.getMonth(), 1, 0,0,0,0).getTime();
+    const end = new Date(d.getFullYear(), d.getMonth()+1, 0, 23,59,59,999).getTime();
+    return { start, end };
+  }
+  function setDefaultMonthFilters() {
+    const { start, end } = getMonthBounds();
+    filtroDataIni.value = toDTLocalValue(start);
+    filtroDataFim.value = toDTLocalValue(end);
+  }
+
+  /* ========= KPI do mês ========= */
+  async function atualizarTotalMes() {
+    const all = await listChamados({});
+    const { start, end } = getMonthBounds();
+    totalMesEl.textContent = all.filter(c => {
+      const t = Number(c.criadoEm || 0);
+      return t >= start && t <= end;
+    }).length;
+  }
+
+  /* ========= Recorrência (app/l_recorrente/<msisdn>) ========= */
+  let recorrenteMap = new Map(); // msisdn -> count
+  async function carregarRecorrencias() {
+    recorrenteMap.clear();
+    const snap = await get(child(ref(rtdb), "app/l_recorrente"));
+    if (snap.exists()) {
+      const obj = snap.val();
+      for (const [k,v] of Object.entries(obj)) recorrenteMap.set(k, Number(v?.count||0));
+    }
+    montarRanking();
+  }
+  function montarRanking() {
+    const arr = [...recorrenteMap.entries()].filter(([,count]) => count > 1)
+      .sort((a,b)=> b[1]-a[1]).slice(0,50);
+    if (!arr.length) { boxRanking.style.display = "none"; rankBody.innerHTML = ""; return; }
+    boxRanking.style.display = "";
+    rankBody.innerHTML = arr.map(([msisdn,count]) => `<tr><td>${msisdn}</td><td>${count}</td></tr>`).join("");
+  }
+  async function incRecorrencia(msisdn, delta = 1) {
+    if (!msisdn) return;
+    const node = child(ref(rtdb), `app/l_recorrente/${msisdn}`);
+    const snap = await get(node);
+    const cur = snap.exists() ? Number(snap.val()?.count || 0) : 0;
+    const next = Math.max(0, cur + delta);
+    await set(node, { count: next, lastAt: Date.now() });
+    recorrenteMap.set(msisdn, next);
+    montarRanking();
+  }
+
+  /* ========= Tabela (filtros padrão mês atual; destaque recorrentes) ========= */
+  async function preencherTabela() {
+    const busca = (filtroBusca.value || "").trim().toLowerCase();
+    const dtIni = (filtroDataIni.value) ? parseDTLocal(filtroDataIni.value) : getMonthBounds().start; // default mês atual
+    const dtFim = (filtroDataFim.value) ? parseDTLocal(filtroDataFim.value) : getMonthBounds().end;   // default mês atual
+    const eqSel = filtroEquip.value;
+    const cenSel = filtroCen.value;
+    const onlyRep = filtroRepetidas.checked;
+
+    const data = await listChamados({ busca });
+    const filtered = data.filter(c => {
+      const created = Number(c.criadoEm || 0);
+      if (created < dtIni || created > dtFim) return false;
+      if (eqSel && c.equipamento !== eqSel) return false;
+      if (cenSel && c.cenario !== cenSel) return false;
+      const bucket = [c.titulo, c.linha, c.criadoPor?.username]
+        .map(v => String(v || "").toLowerCase()).join("|");
+      if (busca && !bucket.includes(busca)) return false;
+      if (onlyRep) { const qtd = recorrenteMap.get(String(c.linha)) || 0; if (qtd <= 1) return false; }
+      return true;
+    });
+
+    totalListadosEl.textContent = filtered.length;
+
+    tbody.innerHTML = "";
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="8" class="muted">Sem registros</td></tr>`;
+      return;
+    }
+
+    for (const c of filtered) {
+      const obs = c.descricao || "";
+      const canEdit = isAdmin || (c.criadoPor?.username === currentUser);
+      const repCount = recorrenteMap.get(String(c.linha)) || 0;
+      const repClass = repCount > 1 ? "repetida-cell" : "";
+      const rowClass = repCount > 1 ? "repetida-row" : "";
+      const repBadge = repCount > 1 ? ` <span class="pill" title="Recorrências">${repCount}×</span>` : "";
+
+      const tr = document.createElement("tr");
+      if (rowClass) tr.classList.add(rowClass);
+      tr.innerHTML = `
+        <td>${formatDate(c.criadoEm)}</td>
+        <td>${c.criadoPor?.username || "-"}</td>
+        <td class="${repClass}">${c.titulo || "-"}${repBadge}</td>
+        <td class="${repClass}">${c.linha || "-"}</td>
+        <td>${c.equipamento || "-"}</td>
+        <td>${c.cenario || "-"}</td>
+        <td>
+          ${obs ? `<button class="icon-btn tooltip" data-tip="${obs.replace(/"/g,'&quot;')}" data-copy="${obs}" title="Copiar observação" aria-label="Observação">📋</button>` : `<span class="muted">—</span>`}
+        </td>
+        <td>
+          <button class="btn xs" data-edit="${c.id}" ${canEdit ? "" : "disabled"}>Editar</button>
+          ${isAdmin ? `<button class="btn xs danger" data-del="${c.id}">Excluir</button>` : ""}
+        </td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  /* ========= Copiar observação ========= */
+  tbody.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button.icon-btn");
+    if (!btn) return;
+    try { await navigator.clipboard.writeText(btn.getAttribute("data-copy") || ""); toast("Observação copiada!", "success"); }
+    catch { toast("Falha ao copiar.", "error"); }
+  });
+
+  /* ========= Salvar (criar/editar) com ajuste de recorrência ========= */
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const msisdn = onlyDigits(inMSISDN.value);
+    if (!validarMSISDN(msisdn)) { toast("MSISDN deve ter 11 dígitos.", "error"); inMSISDN.focus(); return; }
+    if (!inChamado.value.trim()) { toast("Campo 'Chamado' é obrigatório.", "error"); inChamado.focus(); return; }
+
+    const equipamento = selEquip.value === "__outro__" ? (inEqOutro.value || "").trim() : selEquip.value;
+    const cenario = selCen.value === "__outro__" ? (inCenOutro.value || "").trim() : selCen.value;
+    const descricao = (inObs.value || "").trim();
+    const chosen = (v => { if (!v) return null; const d=new Date(v); return isNaN(d)?null:d.getTime(); })(inData.value);
+
+    const base = { titulo: inChamado.value.trim(), descricao, prioridade: "Média", status: "Aberto" };
+    const id = inId.value;
+    const old = onlyDigits(inMsisdnOld.value || "");
+
+    try {
+      if (id) {
+        await updateChamado(id, {
+          titulo: base.titulo,
+          descricao: base.descricao,
+          equipamento, linha: msisdn, cenario,
+          ...(chosen ? { createdAt: chosen } : {})
+        });
+        if (old && old !== msisdn) { await incRecorrencia(old, -1); await incRecorrencia(msisdn, +1); }
+        toast("Chamado atualizado ✔️", "success");
+      } else {
+        const novo = await createChamado(base);
+        await updateChamado(novo.id, {
+          equipamento, linha: msisdn, cenario,
+          ...(chosen ? { createdAt: chosen } : {})
+        });
+        await incRecorrencia(msisdn, +1);
+        toast("Chamado criado ✔️", "success");
+      }
+
+      form.reset(); inId.value = ""; inMsisdnOld.value = ""; inAnalista.value = currentUser;
+      inEqOutro.style.display="none"; inCenOutro.style.display="none";
+      await carregarRecorrencias();
+      await atualizarTotalMes();
+      await preencherTabela();
+    } catch (err) {
+      toast(err.message || "Erro ao salvar", "error");
+    }
+  });
+
+  /* ========= Cancelar ========= */
+  document.getElementById("btnCancelar").addEventListener("click", () => {
+    form.reset(); inId.value = ""; inMsisdnOld.value = ""; inAnalista.value = currentUser;
+    inEqOutro.style.display="none"; inCenOutro.style.display="none";
+  });
+
+  /* ========= Editar/Excluir ========= */
+  document.querySelector("#tblChamados tbody").addEventListener("click", async (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    const id = b.dataset.edit || b.dataset.del;
+
+    if (b.dataset.edit) {
+      const row = b.closest("tr").children;
+      inId.value = id;
+      const linhaTxt = row[3].textContent.trim();
+
+      inChamado.value = row[2].textContent.trim();
+      inMSISDN.value = linhaTxt;
+      inMsisdnOld.value = onlyDigits(linhaTxt);
+
+      const eq = row[4].textContent.trim();
+      if ([...selEquip.options].some(o=>o.value===eq)) { selEquip.value = eq; inEqOutro.style.display="none"; inEqOutro.value=""; }
+      else { selEquip.value="__outro__"; inEqOutro.style.display=""; inEqOutro.value = eq; }
+
+      const cen = row[5].textContent.trim();
+      if ([...selCen.options].some(o=>o.value===cen)) { selCen.value = cen; inCenOutro.style.display="none"; inCenOutro.value=""; }
+      else { selCen.value="__outro__"; inCenOutro.style.display=""; inCenOutro.value = cen; }
+
+      const obsBtn = row[6].querySelector("button.icon-btn");
+      inObs.value = obsBtn ? (obsBtn.getAttribute("data-copy") || "") : "";
+
+      inData.value = "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (b.dataset.del) {
+      if (!isAdmin) return;
+      if (confirm("Excluir este chamado?")) {
+        const linhaTxt = b.closest("tr").children[3].textContent.trim();
+        await deleteChamado(id);
+        await incRecorrencia(onlyDigits(linhaTxt), -1);
+        toast("Chamado excluído", "info");
+        await carregarRecorrencias();
+        await atualizarTotalMes();
+        await preencherTabela();
+      }
+    }
+  });
+
+  /* ========= Export CSV ========= */
+  async function exportarCSV() {
+    const busca = (filtroBusca.value || "").trim().toLowerCase();
+    const dtIni = (filtroDataIni.value) ? parseDTLocal(filtroDataIni.value) : getMonthBounds().start;
+    const dtFim = (filtroDataFim.value) ? parseDTLocal(filtroDataFim.value) : getMonthBounds().end;
+    const eqSel = filtroEquip.value;
+    const cenSel = filtroCen.value;
+    const onlyRep = filtroRepetidas.checked;
+
+    const data = await listChamados({ busca });
+    const filtered = data.filter(c => {
+      const created = Number(c.criadoEm || 0);
+      if (created < dtIni || created > dtFim) return false;
+      if (eqSel && c.equipamento !== eqSel) return false;
+      if (cenSel && c.cenario !== cenSel) return false;
+      const bucket = [c.titulo, c.linha, c.criadoPor?.username]
+        .map(v => String(v||"").toLowerCase()).join("|");
+      if (busca && !bucket.includes(busca)) return false;
+      if (onlyRep) { const qtd = recorrenteMap.get(String(c.linha)) || 0; if (qtd <= 1) return false; }
+      return true;
+    });
+
+    const rows = [];
+    rows.push(["Data","Analista","Chamado","MSISDN","Equipamento","Cenário","Observações","Recorrências"]);
+    for (const c of filtered) {
+      const rep = recorrenteMap.get(String(c.linha)) || 0;
+      rows.push([formatDate(c.criadoEm), c.criadoPor?.username || "", c.titulo || "", c.linha || "", c.equipamento || "", c.cenario || "", c.descricao || "", rep]);
+    }
+    const csv = "\uFEFF" + rows.map(r => r.map(cell => `"${String(cell??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `chamados_${new Date().toISOString().replace(/[:.]/g,"-")}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  /* ========= Boot ========= */
+  await carregarListas();
+  setDefaultMonthFilters();          // por padrão → mês atual
+  await carregarRecorrencias();      // carrega/mostra ranking e habilita destaque
+  await atualizarTotalMes();         // KPI do mês
+  await preencherTabela();           // lista inicial (mês atual)
+</script>
+</body>
+</html>
