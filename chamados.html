@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chamados • SPS (v1.1.3)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./assets/style.css" />
+  <style>
+    /* ===== v1.1.3 – Contraste melhorado e destaque avermelhado para repetidas ===== */
+    :root{
+      --bg: #0b0b10;
+      --panel: #121218;
+      --field: #171720;
+      --field-hover:#1e1e2a;
+      --field-border:#3a3a48;
+      --field-text:#f2f2f5;
+      --field-placeholder:#b4b4c4;
+      --muted:#9aa0a6;
+      --row-alt:#151521;
+      --row-hover:#1b1b2a;
+
+      /* Tons avermelhados para recorrentes */
+      --rep-bg:#2a0f13;       /* fundo da linha */
+      --rep-bg-hover:#351318; /* hover da linha repetida */
+      --rep-text:#ffb4b4;     /* texto e títulos */
+      --rep-pill-bg:#3b0a0e;
+      --rep-pill-border:#ef4444;
+      --rep-pill-text:#fecaca;
+    }
+
+    body{ background:var(--bg); color:var(--field-text); }
+    .panel{ background:var(--panel); }
+
+    /* Campos */
+    input, select, textarea{
+      background:var(--field);
+      border:1px solid var(--field-border);
+      color:var(--field-text);
+    }
+    input:hover, select:hover, textarea:hover{ background:var(--field-hover); }
+    input::placeholder, textarea::placeholder{ color:var(--field-placeholder); }
+    label{ color:var(--field-text); }
+    .req::after { content:" *"; color:#ef4444; font-weight:700; }
+    .hint { font-size:.85rem; color: var(--muted); }
+
+    /* Grid 3×3 responsivo */
+    .grid.form { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 900px){ .grid.form { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px){ .grid.form { grid-template-columns: 1fr; } }
+
+    /* Tabela */
+    table.table thead th{ color:#e4e6eb; border-bottom:1px solid var(--field-border); }
+    table.table tbody tr:nth-child(even){ background:var(--row-alt); }
+    table.table tbody tr:hover{ background:var(--row-hover); }
+
+    /* Tooltip/icone */
+    .icon-btn { background: transparent; border: none; cursor: pointer; color: var(--field-text); }
+    .tooltip { position: relative; }
+    .tooltip[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute; left: 50%; transform: translateX(-50%); bottom: 120%;
+      white-space: pre-wrap; max-width: 420px; padding: .6rem .8rem;
+      background: #101018; border:1px solid var(--field-border); border-radius: 10px;
+      color: var(--field-text); box-shadow: 0 8px 20px rgba(0,0,0,.45); z-index: 50;
+    }
+
+    /* KPI/filtros */
+    .kpi { font-weight: 800; color:#ffffff; }
+    .toolbar { display:flex; gap:.6rem; align-items:end; flex-wrap:wrap; }
+    .toolbar .stat { display:flex; align-items:center; gap:.4rem; white-space:nowrap; }
+
+    /* Destaque avermelhado para LINHAS REPETIDAS (aplica-se à linha inteira e células relevantes) */
+    .repetida-row{ background: var(--rep-bg) !important; }
+    .repetida-row:hover{ background: var(--rep-bg-hover) !important; }
+    .repetida-cell{ font-weight:900; color: var(--rep-text); text-shadow: 0 0 6px rgba(255, 75, 75, 0.35); }
+    .pill {
+      padding:.12rem .5rem; border-radius: 999px; font-size:.75rem; font-weight:700;
+      border:1px solid var(--rep-pill-border); color:var(--rep-pill-text); background: var(--rep-pill-bg);
+    }
+
+    /* Ocultar link usuários se não-admin (fallback) */
+    .hide { display:none !important; }
+  </style>
+  <!--
+    v1.1.3 – changelog:
+    - Correção definitiva da contagem de MSISDNs repetidos: normalização usa SEMPRE os 11 últimos dígitos
+    - Reconstrução do nó app/l_recorrente quando ausente/vazio com base em app/chamados
+    - Destaque avermelhado forte para registros repetidos (linha inteira + células MSISDN e Chamado)
+    - Contraste nos campos e tabela melhorado
+    - Filtro padrão mês atual; KPIs "Mês atual" e "Listados"
+  -->
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">SPS • Chamados</div>
+  <nav class="nav">
+    <a href="./dashboard.html">Dashboard</a>
+    <a href="./chamados.html" class="active">Chamados</a>
+    <a href="./usuarios.html" id="navUsuarios">Usuários</a>
+    <button id="logoutBtn" class="btn danger outline">Sair</button>
+  </nav>
+</header>
+
+<main class="container">
+  <!-- FORM 3×3 -->
+  <section class="panel">
+    <h2>Novo Chamado</h2>
+    <form id="formChamado" class="grid form" autocomplete="off">
+      <input type="hidden" id="chamadoId" />
+      <input type="hidden" id="msisdnOld" />
+
+      <!-- Linha 1: Analista | Data/Hora | Chamado -->
+      <label>Analista
+        <input id="analista" type="text" readonly />
+      </label>
+      <label>Data/Hora
+        <input id="data" type="datetime-local" />
+        <span class="hint">Se vazio, usa agora.</span>
+      </label>
+      <label class="req">Chamado
+        <input id="chamado" type="text" placeholder="Título do chamado" required />
+      </label>
+
+      <!-- Linha 2: MSISDN | Equipamento | Cenário -->
+      <label class="req">MSISDN
+        <input id="msisdn" type="text" inputmode="numeric" maxlength="20" placeholder="Ex.: 11987654321 ou 55..." required />
+        <span class="hint">Normalizamos para os 11 últimos dígitos.</span>
+      </label>
+      <label>Equipamento
+        <select id="equipamentoSelect"></select>
+        <input id="equipamentoOutro" placeholder="Outro equipamento" style="display:none" />
+      </label>
+      <label>Cenário
+        <select id="cenarioSelect"></select>
+        <input id="cenarioOutro" placeholder="Outro cenário" style="display:none" />
+      </label>
+
+      <!-- Linha 3: Observações (span 3) -->
+      <label class="full" style="grid-column: 1/-1">Observações
+        <textarea id="observacoes" rows="3" maxlength="300" placeholder="(opcional, até 300 caracteres)"></textarea>
+      </label>
+
+      <button class="btn primary">Salvar</button>
+      <button type="button" id="btnCancelar" class="btn">Cancelar</button>
+    </form>
+  </section>
+
+  <!-- Lista + filtros + Export CSV -->
+  <section class="panel">
+    <h2 style="display:flex; align-items:center; gap:.75rem;">
+      Lista de Chamados
+      <span class="muted" style="font-weight:500;">(Mês atual: <span id="totalMes" class="kpi">0</span>)</span>
+    </h2>
+
+    <div class="toolbar" id="filtersBar">
+      <label style="flex:1; min-width: 220px;">Busca (texto)
+        <input id="filtroBusca" placeholder="msisdn, chamado, analista..." />
+      </label>
+      <label>Equipamento
+        <select id="filtroEquip"><option value="">(todos)</option></select>
+      </label>
+      <label>Cenário
+        <select id="filtroCen"><option value="">(todos)</option></select>
+      </label>
+      <label>De
+        <input id="filtroDataIni" type="datetime-local" />
+      </label>
+      <label>Até
+        <input id="filtroDataFim" type="datetime-local" />
+      </label>
+      <label style="display:flex; gap:.35rem; align-items:center;">
+        <input type="checkbox" id="filtroRepetidas" />
+        <span>Somente repetidas</span>
+      </label>
+      <div class="stat">Listados: <span id="totalListados" class="kpi">0</span></div>
+      <button id="btnFiltrar" class="btn">Aplicar</button>
+      <button id="btnLimpar" class="btn">Limpar</button>
+      <button id="btnExportar" class="btn outline">Exportar CSV</button>
+    </div>
+
+    <div id="boxRanking" style="display:none; margin-top:.5rem; border:1px dashed var(--field-border); border-radius:8px; padding:.5rem;">
+      <strong style="color:var(--rep-text)">Ranking de linhas recorrentes</strong>
+      <table style="width:100%; font-size:.92rem;">
+        <thead><tr><th>MSISDN</th><th>Qtd</th></tr></thead>
+        <tbody id="rankBody"></tbody>
+      </table>
+    </div>
+
+    <table class="table" id="tblChamados">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Analista</th>
+          <th>Chamado</th>
+          <th>Linha/MSISDN</th>
+          <th>Equipamento</th>
+          <th>Cenário</th>
+          <th>Obs.</th>
+          <th style="width:160px">Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<script type="module">
+  import { requireAuth, logout } from "./services/auth.js";
+  import { createChamado, listChamados, updateChamado, deleteChamado } from "./services/chamados.js";
+  import { formatDate, toast } from "./assets/utils.js";
+  import { rtdb } from "./config/firebase_config.js";
+  import { ref, get, child, set } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+
+  /* ===== Sessão / Permissões ===== */
+  const session = requireAuth();
+  const isAdmin = session?.role === "admin";
+  const currentUser = session?.username || "-";
+  document.getElementById("logoutBtn").addEventListener("click", () => { logout(); window.location.href="./index.html"; });
+  if (!isAdmin) { const nu = document.getElementById("navUsuarios"); if (nu) nu.classList.add("hide"); }
+
+  /* ===== Refs ===== */
+  const form = document.getElementById("formChamado");
+  const inId = document.getElementById("chamadoId");
+  const inMsisdnOld = document.getElementById("msisdnOld");
+  const inAnalista = document.getElementById("analista");
+  const inData = document.getElementById("data");
+  const inChamado = document.getElementById("chamado");
+  const inMSISDN = document.getElementById("msisdn");
+  const selEquip = document.getElementById("equipamentoSelect");
+  const inEqOutro = document.getElementById("equipamentoOutro");
+  const selCen = document.getElementById("cenarioSelect");
+  const inCenOutro = document.getElementById("cenarioOutro");
+  const inObs = document.getElementById("observacoes");
+
+  const tbody = document.querySelector("#tblChamados tbody");
+  const filtroBusca = document.getElementById("filtroBusca");
+  const filtroEquip = document.getElementById("filtroEquip");
+  const filtroCen = document.getElementById("filtroCen");
+  const filtroDataIni = document.getElementById("filtroDataIni");
+  const filtroDataFim = document.getElementById("filtroDataFim");
+  const filtroRepetidas = document.getElementById("filtroRepetidas");
+  const totalMesEl = document.getElementById("totalMes");
+  const totalListadosEl = document.getElementById("totalListados");
+  const rankBody = document.getElementById("rankBody");
+  const boxRanking = document.getElementById("boxRanking");
+
+  document.getElementById("btnFiltrar").addEventListener("click", preencherTabela);
+  document.getElementById("btnLimpar").addEventListener("click", () => {
+    setDefaultMonthFilters(); filtroBusca.value=""; filtroEquip.value=""; filtroCen.value=""; filtroRepetidas.checked=false;
+    preencherTabela();
+  });
+  document.getElementById("btnExportar").addEventListener("click", exportarCSV);
+
+  /* ===== Utils ===== */
+  const onlyDigits = (s) => (s || "").replace(/\D+/g,"");
+  const validarMSISDN = (v) => {
+    const d = onlyDigits(v);
+    return d.length >= 11; // aceitamos mais, normalizamos para os últimos 11
+  };
+  const parseDTLocal = (v) => { if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d.getTime(); };
+  const toDTLocalValue = (ms) => { const d=new Date(ms); const pad=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+
+  // CHAVE NORMALIZADA: SEMPRE OS ÚLTIMOS 11 DÍGITOS
+  const keyFrom = (c) => {
+    const raw = onlyDigits(c?.linha || c?.msisdn || "");
+    if (raw.length <= 11) return raw;
+    return raw.slice(-11);
+  };
+
+  function toggleOutro(selectEl, inputEl) {
+    if (selectEl.value === "__outro__") { inputEl.style.display = ""; inputEl.focus(); }
+    else { inputEl.style.display = "none"; inputEl.value = ""; }
+  }
+  selEquip.addEventListener("change", () => toggleOutro(selEquip, inEqOutro));
+  selCen.addEventListener("change", () => toggleOutro(selCen, inCenOutro));
+
+  /* ===== Listas para selects e filtros ===== */
+  async function carregarListas() {
+    const eqSnap = await get(child(ref(rtdb), "app/listas/equipamentos"));
+    const eqArr = eqSnap.exists() ? eqSnap.val().map(String).filter(Boolean) : [];
+    const cenSnap = await get(child(ref(rtdb), "app/listas/cenarios"));
+    const cenArr = cenSnap.exists() ? cenSnap.val().map(String).filter(Boolean) : [];
+    const mk = (arr) => arr.map(v => `<option value="${v}">${v}</option>`).join("");
+    selEquip.innerHTML = `<option value="">(selecione)</option>${mk(eqArr)}<option value="__outro__">Outro…</option>`;
+    selCen.innerHTML = `<option value="">(selecione)</option>${mk(cenArr)}<option value="__outro__">Outro…</option>`;
+    filtroEquip.innerHTML = `<option value="">(todos)</option>${mk(eqArr)}`;
+    filtroCen.innerHTML = `<option value="">(todos)</option>${mk(cenArr)}`;
+  }
+
+  /* ===== Mês atual ===== */
+  function getMonthBounds(ts = Date.now()) {
+    const d = new Date(ts);
+    const start = new Date(d.getFullYear(), d.getMonth(), 1, 0,0,0,0).getTime();
+    const end = new Date(d.getFullYear(), d.getMonth()+1, 0, 23,59,59,999).getTime();
+    return { start, end };
+  }
+  function setDefaultMonthFilters() {
+    const { start, end } = getMonthBounds();
+    filtroDataIni.value = toDTLocalValue(start);
+    filtroDataFim.value = toDTLocalValue(end);
+  }
+  async function atualizarTotalMes() {
+    const all = await listChamados({});
+    const { start, end } = getMonthBounds();
+    totalMesEl.textContent = all.filter(c => {
+      const t = Number(c.criadoEm || 0);
+      return t >= start && t <= end;
+    }).length;
+  }
+
+  /* ===== Recorrência ===== */
+  let recorrenteMap = new Map(); // msisdn->count (normalizado 11 dígitos)
+
+  async function rebuildRecorrenciasFromChamados() {
+    const all = await listChamados({});
+    const tmp = new Map();
+    for (const c of all) {
+      const k = keyFrom(c);
+      if (k.length !== 11) continue;
+      tmp.set(k, (tmp.get(k) || 0) + 1);
+    }
+    const payload = {};
+    for (const [k,v] of tmp.entries()) payload[k] = { count: v, lastAt: Date.now() };
+    await set(child(ref(rtdb), "app/l_recorrente"), payload);
+    return tmp;
+  }
+
+  async function carregarRecorrencias() {
+    recorrenteMap.clear();
+    const snap = await get(child(ref(rtdb), "app/l_recorrente"));
+    if (snap.exists()) {
+      const obj = snap.val();
+      for (const [k,v] of Object.entries(obj)) recorrenteMap.set(k, Number(v?.count||0));
+    }
+    if (recorrenteMap.size === 0) {
+      recorrenteMap = await rebuildRecorrenciasFromChamados();
+    }
+    montarRanking();
+  }
+
+  function montarRanking() {
+    const arr = [...recorrenteMap.entries()].filter(([,count]) => count > 1)
+      .sort((a,b)=> b[1]-a[1]).slice(0,50);
+    if (!arr.length) { boxRanking.style.display = "none"; rankBody.innerHTML = ""; return; }
+    boxRanking.style.display = "";
+    rankBody.innerHTML = arr.map(([msisdn,count]) => `<tr><td>${msisdn}</td><td>${count}</td></tr>`).join("");
+  }
+
+  async function incRecorrencia(msisdn, delta = 1) {
+    const d = onlyDigits(msisdn || "");
+    const k = d.length <= 11 ? d : d.slice(-11);
+    if (!k) return;
+    const cur = recorrenteMap.get(k) || 0;
+    const next = Math.max(0, cur + delta);
+    recorrenteMap.set(k, next);
+    await set(child(ref(rtdb), `app/l_recorrente/${k}`), { count: next, lastAt: Date.now() });
+    montarRanking();
+  }
+
+  /* ===== Tabela (padrão: mês atual; destaque repetidas em vermelho) ===== */
+  async function preencherTabela() {
+    const busca = (filtroBusca.value || "").trim().toLowerCase();
+    const dtIni = (filtroDataIni.value) ? parseDTLocal(filtroDataIni.value) : getMonthBounds().start;
+    const dtFim = (filtroDataFim.value) ? parseDTLocal(filtroDataFim.value) : getMonthBounds().end;
+    const eqSel = filtroEquip.value;
+    const cenSel = filtroCen.value;
+    const onlyRep = filtroRepetidas.checked;
+
+    const data = await listChamados({ busca });
+    const filtered = data.filter(c => {
+      const created = Number(c.criadoEm || 0);
+      if (created < dtIni || created > dtFim) return false;
+      if (eqSel && c.equipamento !== eqSel) return false;
+      if (cenSel && c.cenario !== cenSel) return false;
+
+      const bucket = [c.titulo, keyFrom(c), c.criadoPor?.username]
+        .map(v => String(v || "").toLowerCase()).join("|");
+      if (busca && !bucket.includes(busca)) return false;
+
+      if (onlyRep) {
+        const qtd = recorrenteMap.get(keyFrom(c)) || 0;
+        if (qtd <= 1) return false;
+      }
+      return true;
+    });
+
+    totalListadosEl.textContent = filtered.length;
+
+    tbody.innerHTML = "";
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="8" class="muted">Sem registros</td></tr>`;
+      return;
+    }
+
+    for (const c of filtered) {
+      const obs = c.descricao || "";
+      const canEdit = isAdmin || (c.criadoPor?.username === currentUser);
+      const repCount = recorrenteMap.get(keyFrom(c)) || 0;
+      const row = document.createElement("tr");
+      if (repCount > 1) row.classList.add("repetida-row");
+
+      row.innerHTML = `
+        <td>${formatDate(c.criadoEm)}</td>
+        <td>${c.criadoPor?.username || "-"}</td>
+        <td class="${repCount>1?'repetida-cell':''}">${c.titulo || "-"}${repCount>1?` <span class="pill" title="Recorrências">${repCount}×</span>`:''}</td>
+        <td class="${repCount>1?'repetida-cell':''}">${keyFrom(c) || "-"}</td>
+        <td>${c.equipamento || "-"}</td>
+        <td>${c.cenario || "-"}</td>
+        <td>
+          ${obs ? `<button class="icon-btn tooltip" data-tip="${obs.replace(/"/g,'&quot;')}" data-copy="${obs}" title="Copiar observação" aria-label="Observação">📋</button>` : `<span class="muted">—</span>`}
+        </td>
+        <td>
+          <button class="btn xs" data-edit="${c.id}" ${canEdit ? "" : "disabled"}>Editar</button>
+          ${isAdmin ? `<button class="btn xs danger" data-del="${c.id}">Excluir</button>` : ""}
+        </td>`;
+      tbody.appendChild(row);
+    }
+  }
+
+  /* ===== Copiar observação ===== */
+  tbody.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button.icon-btn");
+    if (!btn) return;
+    try { await navigator.clipboard.writeText(btn.getAttribute("data-copy") || ""); toast("Observação copiada!", "success"); }
+    catch { toast("Falha ao copiar.", "error"); }
+  });
+
+  /* ===== Cancelar ===== */
+  document.getElementById("btnCancelar").addEventListener("click", () => {
+    form.reset(); inId.value = ""; inMsisdnOld.value = ""; inAnalista.value = currentUser;
+    inEqOutro.style.display="none"; inCenOutro.style.display="none";
+  });
+
+  /* ===== Salvar (criar/editar) ===== */
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const msisdnRaw = inMSISDN.value;
+    if (!validarMSISDN(msisdnRaw)) { toast("Informe pelo menos 11 dígitos para o MSISDN.", "error"); inMSISDN.focus(); return; }
+    const msisdn = (() => {
+      const d = onlyDigits(msisdnRaw);
+      return d.length <= 11 ? d : d.slice(-11);
+    })();
+
+    if (!inChamado.value.trim()) { toast("Campo 'Chamado' é obrigatório.", "error"); inChamado.focus(); return; }
+
+    const equipamento = selEquip.value === "__outro__" ? (inEqOutro.value || "").trim() : selEquip.value;
+    const cenario = selCen.value === "__outro__" ? (inCenOutro.value || "").trim() : selCen.value;
+    const descricao = (inObs.value || "").trim();
+    const chosen = (v => { if (!v) return null; const d=new Date(v); return isNaN(d)?null:d.getTime(); })(inData.value);
+
+    const base = { titulo: inChamado.value.trim(), descricao, prioridade: "Média", status: "Aberto" };
+    const id = inId.value;
+    const old = (() => {
+      const d = onlyDigits(inMsisdnOld.value || "");
+      return d.length <= 11 ? d : d.slice(-11);
+    })();
+
+    try {
+      if (id) {
+        await updateChamado(id, {
+          titulo: base.titulo,
+          descricao: base.descricao,
+          equipamento, linha: msisdn, cenario,
+          ...(chosen ? { createdAt: chosen } : {})
+        });
+        if (old && old !== msisdn) { await incRecorrencia(old, -1); await incRecorrencia(msisdn, +1); }
+        toast("Chamado atualizado ✔️", "success");
+      } else {
+        const novo = await createChamado(base);
+        await updateChamado(novo.id, {
+          equipamento, linha: msisdn, cenario,
+          ...(chosen ? { createdAt: chosen } : {})
+        });
+        await incRecorrencia(msisdn, +1);
+        toast("Chamado criado ✔️", "success");
+      }
+
+      form.reset(); inId.value = ""; inMsisdnOld.value = ""; inAnalista.value = currentUser;
+      inEqOutro.style.display="none"; inCenOutro.style.display="none";
+      await carregarRecorrencias();
+      await atualizarTotalMes();
+      await preencherTabela();
+    } catch (err) {
+      toast(err.message || "Erro ao salvar", "error");
+    }
+  });
+
+  /* ===== Editar/Excluir ===== */
+  document.querySelector("#tblChamados tbody").addEventListener("click", async (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    const id = b.dataset.edit || b.dataset.del;
+
+    if (b.dataset.edit) {
+      const row = b.closest("tr").children;
+      inId.value = id;
+      const linhaTxt = row[3].textContent.trim();
+
+      inChamado.value = row[2].textContent.trim();
+      inMSISDN.value = linhaTxt;
+      inMsisdnOld.value = onlyDigits(linhaTxt).slice(-11);
+
+      const eq = row[4].textContent.trim();
+      if ([...selEquip.options].some(o=>o.value===eq)) { selEquip.value = eq; inEqOutro.style.display="none"; inEqOutro.value=""; }
+      else { selEquip.value="__outro__"; inEqOutro.style.display=""; inEqOutro.value = eq; }
+
+      const cen = row[5].textContent.trim();
+      if ([...selCen.options].some(o=>o.value===cen)) { selCen.value = cen; inCenOutro.style.display="none"; inCenOutro.value=""; }
+      else { selCen.value="__outro__"; inCenOutro.style.display=""; inCenOutro.value = cen; }
+
+      const obsBtn = row[6].querySelector("button.icon-btn");
+      inObs.value = obsBtn ? (obsBtn.getAttribute("data-copy") || "") : "";
+
+      inData.value = "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (b.dataset.del) {
+      if (!isAdmin) return;
+      if (confirm("Excluir este chamado?")) {
+        const linhaTxt = b.closest("tr").children[3].textContent.trim();
+        await deleteChamado(id);
+        await incRecorrencia(onlyDigits(linhaTxt).slice(-11), -1);
+        toast("Chamado excluído", "info");
+        await carregarRecorrencias();
+        await atualizarTotalMes();
+        await preencherTabela();
+      }
+    }
+  });
+
+  /* ===== Export CSV ===== */
+  async function exportarCSV() {
+    const busca = (filtroBusca.value || "").trim().toLowerCase();
+    const dtIni = (filtroDataIni.value) ? parseDTLocal(filtroDataIni.value) : getMonthBounds().start;
+    const dtFim = (filtroDataFim.value) ? parseDTLocal(filtroDataFim.value) : getMonthBounds().end;
+    const eqSel = filtroEquip.value;
+    const cenSel = filtroCen.value;
+    const onlyRep = filtroRepetidas.checked;
+
+    const data = await listChamados({ busca });
+    const filtered = data.filter(c => {
+      const created = Number(c.criadoEm || 0);
+      if (created < dtIni || created > dtFim) return false;
+      if (eqSel && c.equipamento !== eqSel) return false;
+      if (cenSel && c.cenario !== cenSel) return false;
+      const bucket = [c.titulo, keyFrom(c), c.criadoPor?.username]
+        .map(v => String(v||"").toLowerCase()).join("|");
+      if (busca && !bucket.includes(busca)) return false;
+      if (onlyRep) { const qtd = recorrenteMap.get(keyFrom(c)) || 0; if (qtd <= 1) return false; }
+      return true;
+    });
+
+    const rows = [];
+    rows.push(["Data","Analista","Chamado","MSISDN","Equipamento","Cenário","Observações","Recorrências"]);
+    for (const c of filtered) {
+      const rep = recorrenteMap.get(keyFrom(c)) || 0;
+      rows.push([formatDate(c.criadoEm), c.criadoPor?.username || "", c.titulo || "", keyFrom(c) || "", c.equipamento || "", c.cenario || "", c.descricao || "", rep]);
+    }
+    const csv = "\uFEFF" + rows.map(r => r.map(cell => `"${String(cell??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `chamados_${new Date().toISOString().replace(/[:.]/g,"-")}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  /* ===== Boot ===== */
+  inAnalista.value = currentUser;
+  await carregarListas();
+  setDefaultMonthFilters();             // padrão: mês atual
+  await carregarRecorrencias();         // carrega ou reconstrói l_recorrente
+  await atualizarTotalMes();            // KPI
+  await preencherTabela();              // lista inicial
+</script>
+</body>
+</html>
