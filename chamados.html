@@ -108,8 +108,7 @@
     <form id="formChamado" class="grid form" autocomplete="off">
       <input type="hidden" id="chamadoId" />
       <input type="hidden" id="msisdnOld" />
-
-      <!-- Linha 1: Analista | Data/Hora | Chamado -->
+ Linha 1: Analista | Data/Hora | Chamado -->
       <label>Analista
         <input id="analista" type="text" readonly />
       </label>
@@ -121,8 +120,9 @@
 <input id="chamado"
        type="text" 
        maxlength="20" 
-       placeholder="Ex.: PDST-2000623" 
-       pattern="^PDST-\d{7}$" 
+    
+      placeholder="Ex.: PDST-2000623"
+       pattern="PDST-\d{7}$" 
        required />
        <!-- <input id="chamado" type="text" placeholder="Chamado" required /> -->
                 <span class="hint">Normalizamos para PDST-2000000.</span>
