@@ -118,7 +118,15 @@
         <span class="hint">Se vazio, usa agora.</span>
       </label>
       <label class="req">Chamado
-        <input id="chamado" type="text" placeholder="Título do chamado" required />
+<input id="chamado"
+       type="text" 
+       maxlength="20" 
+       placeholder="Ex.: PDST-2000623" 
+       pattern="^PDST-\d{7}$" 
+       required />
+       <!-- <input id="chamado" type="text" placeholder="Chamado" required /> -->
+                <span class="hint">Normalizamos para PDST-2000000.</span>
+
       </label>
 
       <!-- Linha 2: MSISDN | Equipamento | Cenário -->
