@@ -1,56 +1,49 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Teste Firebase • SysSpsHjr</title>
+  <meta charset="UTF-8" />
+  <title>Login • SPS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./assets/style.css" />
 </head>
-<body>
+<body class="center">
+  <div class="card">
+    <h1>SPS • Login</h1>
+    <form id="loginForm">
+      <label for="username">Usuário</label>
+      <input id="username" type="text" placeholder="usuario" autocomplete="username" required />
+      <label for="password">Senha</label>
+      <input id="password" type="password" placeholder="••••" autocomplete="current-password" required />
+      <button type="submit" class="btn primary">Entrar</button>
+    </form>
+    <p class="muted">(primeiro nome e user 9)</p>
+  </div>
 
-<h2>Teste Firebase</h2>
-<p>Abra o console (F12)</p>
+  <script type="module">
+    import { login, getSession } from "./services/auth.js";   // <<— AQUI
+    import { toast } from "./assets/utils.js";
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+    // Redireciona se já estiver logado
+    const sess = getSession();
+    if (sess) {
+      window.location.href = "./chamados.html";
+    }
 
-  // === CONFIGURAÇÃO FIREBASE (MESMA DO PROJETO) ===
-  const firebaseConfig = {
-    apiKey: "AIzaSyAeCrURSs0TBXlYF3TKLi4q98VwrGaKe_Q",
-    authDomain: "spsch-849e5.firebaseapp.com",
-    databaseURL: "https://spsch-849e5-default-rtdb.firebaseio.com",
-    projectId: "spsch-849e5",
-    storageBucket: "spsch-849e5.firebasestorage.app",
-    messagingSenderId: "698967090558",
-    appId: "1:698967090558:web:978781fd27b86c36203f2f"
-  };
-
-  console.log("1️⃣ Inicializando Firebase...");
-  const app = initializeApp(firebaseConfig);
-
-  console.log("2️⃣ Conectando ao Realtime Database...");
-  const db = getDatabase(app);
-
-  // 🔴 CAMINHO REAL DO SEU PROJETO
-  const DB_PATH = "app/chamados";
-
-  console.log("3️⃣ Lendo caminho:", DB_PATH);
-  const chamadosRef = ref(db, DB_PATH);
-
-  get(chamadosRef)
-    .then(snapshot => {
-      console.log("4️⃣ Snapshot bruto:", snapshot);
-
-      if (snapshot.exists()) {
-        console.log("✅ DADOS RECEBIDOS DE app/chamados:");
-        console.table(snapshot.val());
-      } else {
-        console.warn("⚠️ Nó existe, mas está vazio:", DB_PATH);
+    const form = document.getElementById("loginForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      try {
+        const user = await login(username, password);
+        toast(`Bem-vindo, ${user.username}!`, "success");
+        window.location.href = "./chamados.html";
+      } catch (err) {
+        toast(err.message || "Falha no login", "error");
       }
-    })
-    .catch(error => {
-      console.error("❌ ERRO AO LER FIREBASE:", error);
     });
-</script>
-
+  </script>
 </body>
 </html>
+
